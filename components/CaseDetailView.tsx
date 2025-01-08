@@ -49,10 +49,10 @@ interface CaseDetailViewProps {
   caseDetails: CaseDetails;
 }
 
-export default function CaseDetailView({ caseId }: CaseDetailViewProps) {
-  const [caseData, setCaseData] = useState<any>(null);
+export default function CaseDetailView({ CaseDetails }: CaseDetailViewProps) {
+  // const [caseData, setCaseData] = useState<any>(null);
   const [notes, setNotes] = useState("");
-  const [notesList, setNotesList] = useState<any[]>([]);
+  const [notesList, setNotesList] = useState<Note[]>(caseDetails.notes || []);
   const [isFavorite, setIsFavorite] = useState(false);
   const [documents, setDocuments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -129,7 +129,7 @@ export default function CaseDetailView({ caseId }: CaseDetailViewProps) {
         <CardHeader className="bg-white">
           <CardTitle className="text-xl flex items-center space-x-2">
             <FileText className="h-6 w-6 text-blue-500" />
-            <span>{caseData.title} - Case ID: {caseData.caseId || "123456"}</span>
+            <span>{CaseDetails.title} - Case ID: {CaseDetails.caseId || "123456"}</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -137,62 +137,62 @@ export default function CaseDetailView({ caseId }: CaseDetailViewProps) {
             <div>
               <Label className="text-gray-600">Client Name</Label>
               <p className="text-lg font-semibold">
-                {caseData.clientName || "No data to display"}
+                {CaseDetails.clientName || "No data to display"}
               </p>
             </div>
             <div>
               <Label className="text-gray-600">Contact Information</Label>
               <p className="text-gray-700">
-                Address: {caseData.contactInfo?.address || "No data to display"}
+                Address: {CaseDetails.contactInfo?.address || "No data to display"}
               </p>
               <p className="text-gray-700">
-                Email: {caseData.contactInfo?.email || "No data to display"}
+                Email: {CaseDetails.contactInfo?.email || "No data to display"}
               </p>
               <p className="text-gray-700">
-                Phone: {caseData.contactInfo?.phone || "No data to display"}
+                Phone: {CaseDetails.contactInfo?.phone || "No data to display"}
               </p>
             </div>
             <div>
               <Label className="text-gray-600">Case Type</Label>
               <p className="text-gray-700">
-                {caseData.caseType || "No data to display"}
+                {CaseDetails.caseType || "No data to display"}
               </p>
             </div>
             <div>
               <Label className="text-gray-600">Description</Label>
               <p className="text-gray-700">
-                {caseData.description || "No data to display"}
+                {CaseDetails.description || "No data to display"}
               </p>
             </div>
             <div>
               <Label className="text-gray-600">Assigned Lawyer/Team</Label>
               <p className="text-gray-700">
-                {caseData.assignedLawyer || "No data to display"}
+                {CaseDetails.assignedLawyer || "No data to display"}
               </p>
             </div>
 
             <div>
               <Label className="text-gray-600">Assigned Judge</Label>
               <p className="text-gray-700">
-                {caseData.assignedJudge || "No data to display"}
+                {CaseDetails.assignedJudge || "No data to display"}
               </p>
             </div>
             <div>
               <Label className="text-gray-600">Section/Act</Label>
               <p className="text-gray-700">
-                {caseData.section || "No data to display"}
+                {CaseDetails.section || "No data to display"}
               </p>
             </div>
             <div>
               <Label className="text-gray-600">Court Address</Label>
               <p className="text-gray-700">
-                {caseData.courtAddress || "No data to display"}
+                {CaseDetails.courtAddress || "No data to display"}
               </p>
             </div>
             <div>
               <Label className="text-gray-600">Case Filed Date</Label>
               <p className="text-gray-700">
-                {caseData.caseFileDate || "No data to display"}
+                {CaseDetails.caseFileDate || "No data to display"}
               </p>
             </div>
           </div>

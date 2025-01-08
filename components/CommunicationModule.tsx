@@ -1,4 +1,3 @@
-// components/CommunicationModule.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -13,21 +12,45 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { MessageSquare, Users, ImageIcon, FileText, CalendarDays } from "lucide-react";
+import { CalendarDays, FileText, MessageSquare } from "lucide-react";
+
+interface Message {
+  id: string;
+  sender: string;
+  content: string;
+  timestamp: string;
+}
+
+interface Task {
+  id: string;
+  task: string;
+  assignedTo: string;
+  dueDate: string;
+}
+
+interface File {
+  id: string;
+  name: string;
+  url: string;
+}
+
+interface Note {
+  id: string;
+  content: string;
+  author: string;
+}
 
 export default function CommunicationModule() {
-  const [activeTab, setActiveTab] = useState("personal");
+  const [activeTab, setActiveTab] = useState<"personal" | "groups">("personal");
   const [newMessage, setNewMessage] = useState("");
-  const [messages, setMessages] = useState([]);
-  const [groupMessages, setGroupMessages] = useState([]);
-  const [tasks, setTasks] = useState([]);
-  const [files, setFiles] = useState([]);
-  const [notes, setNotes] = useState([]);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [groupMessages, setGroupMessages] = useState<Message[]>([]);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [files, setFiles] = useState<File[]>([]);
+  const [notes, setNotes] = useState<Note[]>([]);
   const [newTask, setNewTask] = useState("");
   const [newNote, setNewNote] = useState("");
 
-  // Fetch data from APIs on component mount
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -55,9 +78,11 @@ export default function CommunicationModule() {
   const handleSendMessage = async () => {
     if (newMessage.trim() === "") return;
 
-    const endpoint = activeTab === "personal" 
-      ? "/api/communication/conversations/personal" 
-      : "/api/communication/conversations/group";
+    const endpoint =
+      activeTab === "personal"
+        ? "/api/communication/conversations/personal"
+        : "/api/communication/conversations/group";
+
     try {
       const response = await fetch(endpoint, {
         method: "POST",
@@ -126,18 +151,21 @@ export default function CommunicationModule() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value)} className="w-full">
+          <Tabs
+            value={activeTab}
+            onValueChange={(value) => setActiveTab(value as "personal" | "groups")}
+            className="w-full"
+          >
             <TabsList className="mb-4">
               <TabsTrigger value="personal">Personal DMs</TabsTrigger>
               <TabsTrigger value="groups">Group Chats</TabsTrigger>
             </TabsList>
 
-            {/* Personal DMs */}
             <TabsContent value="personal">
               <ScrollArea className="h-64 border rounded-md p-4 mb-4">
-                {Array.isArray(messages) && messages.length > 0 ? (
+                {messages.length > 0 ? (
                   messages.map((msg) => (
-                    <div key={msg.id} className={`mb-4 ${msg.sender === "You" ? "text-right" : "text-left"}`}>
+                    <div key={msg.id} className="mb-4 text-left">
                       <p className="text-sm font-medium">{msg.sender}</p>
                       <p>{msg.content}</p>
                       <span className="text-xs text-gray-500">{msg.timestamp}</span>
@@ -158,12 +186,11 @@ export default function CommunicationModule() {
               </div>
             </TabsContent>
 
-            {/* Group Chats */}
             <TabsContent value="groups">
               <ScrollArea className="h-64 border rounded-md p-4 mb-4">
-                {Array.isArray(groupMessages) && groupMessages.length > 0 ? (
+                {groupMessages.length > 0 ? (
                   groupMessages.map((msg) => (
-                    <div key={msg.id} className={`mb-4 ${msg.sender === "You" ? "text-right" : "text-left"}`}>
+                    <div key={msg.id} className="mb-4 text-left">
                       <p className="text-sm font-medium">{msg.sender}</p>
                       <p>{msg.content}</p>
                       <span className="text-xs text-gray-500">{msg.timestamp}</span>
@@ -197,7 +224,7 @@ export default function CommunicationModule() {
         </CardHeader>
         <CardContent>
           <ScrollArea className="h-64 border rounded-md p-4 mb-4">
-            {Array.isArray(tasks) && tasks.length > 0 ? (
+            {tasks.length > 0 ? (
               tasks.map((task) => (
                 <div key={task.id} className="mb-4">
                   <p className="font-medium">{task.task}</p>
@@ -230,7 +257,7 @@ export default function CommunicationModule() {
         </CardHeader>
         <CardContent>
           <ScrollArea className="h-64 border rounded-md p-4 mb-4">
-            {Array.isArray(notes) && notes.length > 0 ? (
+            {notes.length > 0 ? (
               notes.map((note) => (
                 <div key={note.id} className="mb-4">
                   <p>{note.content}</p>

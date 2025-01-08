@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { connectToDatabase } from "@/lib/db";
 import { NextResponse } from "next/server";
 

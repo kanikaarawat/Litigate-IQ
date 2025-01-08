@@ -29,7 +29,8 @@ export default function SettingsComponent() {
   const [comments, setComments] = useState("")
   const [suggestions, setSuggestions] = useState("")
   const [feedbackSubmitted, setFeedbackSubmitted] = useState(false)
-  const [profilePhoto, setProfilePhoto] = useState(null)
+  const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
+
 
   const handleFeedbackSubmit = (e: React.FormEvent) => {
     e.preventDefault()

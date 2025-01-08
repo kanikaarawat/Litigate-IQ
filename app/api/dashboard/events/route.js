@@ -3,7 +3,6 @@ import { connectToDatabase } from "@/lib/db";
 
 export async function GET(req) {
   try {
-    // Establish database connection
     const { db } = await connectToDatabase();
 
     // Get the date query parameter from the request URL
@@ -20,28 +19,57 @@ export async function GET(req) {
     const selectedDate = new Date(dateParam);
 
     // Calculate the start and end of the selected day in UTC
-    const startOfDayUTC = new Date(Date.UTC(selectedDate.getUTCFullYear(), selectedDate.getUTCMonth(), selectedDate.getUTCDate(), 0, 0, 0, 0));
-    const endOfDayUTC = new Date(Date.UTC(selectedDate.getUTCFullYear(), selectedDate.getUTCMonth(), selectedDate.getUTCDate(), 23, 59, 59, 999));
+    const startOfDayUTC = new Date(
+      Date.UTC(
+        selectedDate.getUTCFullYear(),
+        selectedDate.getUTCMonth(),
+        selectedDate.getUTCDate(),
+        0,
+        0,
+        0,
+        0
+      )
+    );
+    const endOfDayUTC = new Date(
+      Date.UTC(
+        selectedDate.getUTCFullYear(),
+        selectedDate.getUTCMonth(),
+        selectedDate.getUTCDate(),
+        23,
+        59,
+        59,
+        999
+      )
+    );
 
     console.log("Start of Day (UTC):", startOfDayUTC);
     console.log("End of Day (UTC):", endOfDayUTC);
 
     // Fetch events for the selected day
-    const events = await db.collection("events").find({
-      eventDate: {
-        $gte: startOfDayUTC,
-        $lte: endOfDayUTC,
-      },
-    }).toArray();
+    const events = await db
+      .collection("events")
+      .find({
+        eventDate: {
+          $gte: startOfDayUTC,
+          $lte: endOfDayUTC,
+        },
+      })
+      .toArray();
 
-    console.log("Raw events fetched from database:", events);
+    // If no events are found, return an empty array
+    if (!events || events.length === 0) {
+      console.warn("No events found for the specified date range.");
+      return NextResponse.json([]);
+    }
+
+    console.log("Fetched events:", events);
 
     // Transform events to a simplified structure
-    const eventDetails = events.map(event => ({
+    const eventDetails = events.map((event) => ({
       id: event._id.toString(), // Convert ObjectId to string
       title: event.eventName || "Untitled Event",
       description: event.description || "No description provided",
-      date: event.eventDate, // Already in ISO format
+      date: event.eventDate,
       location: event.location || "No location specified",
     }));
 

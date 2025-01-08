@@ -18,6 +18,6 @@ export async function PUT(req) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    return NextResponse.json({ error: "Error updating password." }, { status: 500 })
+    return NextResponse.json({ error: "Error updating password." }, { status: 500 });
   }
 }

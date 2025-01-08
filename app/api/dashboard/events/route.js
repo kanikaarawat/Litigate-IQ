@@ -5,8 +5,7 @@ export async function GET(req) {
   try {
     const { db } = await connectToDatabase();
 
-    // Get the date query parameter from the request URL
-    const { searchParams } = new URL(req.url);
+    const { searchParams } = new URL(req.url, "http://localhost"); // Ensure a default base URL
     const dateParam = searchParams.get("date");
 
     if (!dateParam) {
@@ -17,35 +16,11 @@ export async function GET(req) {
     }
 
     const selectedDate = new Date(dateParam);
+    const startOfDayUTC = new Date(Date.UTC(selectedDate.getUTCFullYear(), selectedDate.getUTCMonth(), selectedDate.getUTCDate(), 0, 0, 0, 0));
+    const endOfDayUTC = new Date(Date.UTC(selectedDate.getUTCFullYear(), selectedDate.getUTCMonth(), selectedDate.getUTCDate(), 23, 59, 59, 999));
 
-    // Calculate the start and end of the selected day in UTC
-    const startOfDayUTC = new Date(
-      Date.UTC(
-        selectedDate.getUTCFullYear(),
-        selectedDate.getUTCMonth(),
-        selectedDate.getUTCDate(),
-        0,
-        0,
-        0,
-        0
-      )
-    );
-    const endOfDayUTC = new Date(
-      Date.UTC(
-        selectedDate.getUTCFullYear(),
-        selectedDate.getUTCMonth(),
-        selectedDate.getUTCDate(),
-        23,
-        59,
-        59,
-        999
-      )
-    );
+    console.log("Fetching events between:", startOfDayUTC, "and", endOfDayUTC);
 
-    console.log("Start of Day (UTC):", startOfDayUTC);
-    console.log("End of Day (UTC):", endOfDayUTC);
-
-    // Fetch events for the selected day
     const events = await db
       .collection("events")
       .find({
@@ -56,24 +31,20 @@ export async function GET(req) {
       })
       .toArray();
 
-    // If no events are found, return an empty array
-    if (!events || events.length === 0) {
+    if (!events.length) {
       console.warn("No events found for the specified date range.");
       return NextResponse.json([]);
     }
 
-    console.log("Fetched events:", events);
-
-    // Transform events to a simplified structure
     const eventDetails = events.map((event) => ({
-      id: event._id.toString(), // Convert ObjectId to string
+      id: event._id.toString(),
       title: event.eventName || "Untitled Event",
       description: event.description || "No description provided",
       date: event.eventDate,
       location: event.location || "No location specified",
     }));
 
-    console.log("Transformed and filtered events:", eventDetails);
+    console.log("Transformed events:", eventDetails);
 
     return NextResponse.json(eventDetails);
   } catch (error) {

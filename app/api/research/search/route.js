@@ -4,32 +4,30 @@ import { NextResponse } from "next/server";
 export async function GET(req) {
   try {
     const { db } = await connectToDatabase();
-
-    // Extract search query parameter
-    const { searchParams } = new URL(req.url);
+    const { searchParams } = new URL(req.url, "http://localhost");
     const query = searchParams.get("q");
 
     if (!query || query.trim() === "") {
-      console.warn("Search query parameter is empty.");
       return NextResponse.json(
         { error: "Search query cannot be empty." },
         { status: 400 }
       );
     }
 
-    console.log("Search query received:", query);
+    console.log("Performing search for query:", query);
 
-    // Perform a text search in the 'cases' collection
     const results = await db
       .collection("cases")
       .find({ $text: { $search: query } })
       .toArray();
 
-    console.log("Search results from database:", results);
+    if (!results.length) {
+      console.warn("No search results found for query:", query);
+      return NextResponse.json([]);
+    }
 
-    // Transform results for consistent response structure
     const transformedResults = results.map((result) => ({
-      id: result._id.toString(), // Convert ObjectId to string
+      id: result._id.toString(),
       title: result.title || "Untitled Case",
       description: result.description || "No description available",
       content: result.content || "No content available",

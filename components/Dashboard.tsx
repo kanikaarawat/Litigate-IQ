@@ -142,12 +142,12 @@ export default function Dashboard() {
     }
   };
 
-  const handleDeleteEvent = async (eventId: string) => {
+  const handleDeleteEvent = async () => {
     // const confirmed = confirm("Are you sure you want to delete this event?");
     if (!eventToDelete) return;
 
     try {
-      const response = await fetch(`/api/dashboard/events/${eventId}`, {
+      const response = await fetch(`/api/dashboard/events/${eventToDelete}`, {
         method: "DELETE",
       });
 
@@ -155,7 +155,7 @@ export default function Dashboard() {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      setEvents((prevEvents) => prevEvents.filter((event) => event.id !== eventId));
+      setEvents((prevEvents) => prevEvents.filter((event) => event.id !== eventToDelete));
     } catch (error) {
       console.error("Error deleting event:", error);
     }
@@ -358,7 +358,7 @@ export default function Dashboard() {
                         <p><strong>Client Name:</strong> {event.clientName || "N/A"}</p>
                         <p><strong>Description:</strong> {event.description}</p>
                         <p><strong>Location:</strong> {event.location || "N/A"}</p>
-                        <p className="text-sm text-gray-500">
+                        <p>
                           <strong>Time:</strong> {new Date(event.date).toLocaleTimeString([], {
                             hour: "2-digit",
                             minute: "2-digit",
@@ -368,7 +368,7 @@ export default function Dashboard() {
                       <div className="flex space-x-2">
                         <Button
                           onClick={() => handleEditEvent(event)}
-                          className="bg-yellow-500 hover:bg-yellow-600 text-white"
+                          className="bg-blue-500 hover:bg-yellow-600 text-white"
                         >
                           Edit
                         </Button>
@@ -533,7 +533,7 @@ export default function Dashboard() {
             {/* Edit Event Modal */}
                   {editingEvent && (
                     <AddNewEventModal
-                      event={editingEvent}
+                      existingEvent={editingEvent}
                       onClose={() => setEditingEvent(null)}
                       onAddEvent={handleUpdateEvent}
                     />

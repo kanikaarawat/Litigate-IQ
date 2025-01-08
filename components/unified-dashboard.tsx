@@ -73,7 +73,9 @@ export default function UnifiedDashboardComponent() {
       <div
         className={`${
           isSidebarOpen ? "w-64" : "w-20"
-        } hidden sm:flex flex-col bg-white border-r transition-all duration-300`}
+        } sm:w-auto sm:translate-x-0 absolute sm:relative z-50 flex flex-col bg-white border-r transition-all duration-300 sm:block ${
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
       >
         <div className="flex items-center justify-between p-4 border-b">
           {isSidebarOpen && (
@@ -97,71 +99,30 @@ export default function UnifiedDashboardComponent() {
         {/* Sidebar Navigation */}
         <nav className="mt-2 flex-1 overflow-y-auto">
           <ul className="space-y-2">
-            <li>
-              <Button
-                onClick={() => setActiveSection("dashboard")}
-                className={`${baseButtonStyle} ${
-                  activeSection === "dashboard"
-                    ? "bg-gray-200 text-black"
-                    : "bg-white text-black hover:bg-gray-100"
-                }`}
-              >
-                <Grid className="h-5 w-5 mr-2" />
-                {isSidebarOpen && "Dashboard"}
-              </Button>
-            </li>
-            <li>
-              <Button
-                onClick={() => setActiveSection("case-management")}
-                className={`${baseButtonStyle} ${
-                  activeSection === "case-management"
-                    ? "bg-gray-200 text-black"
-                    : "bg-white text-black hover:bg-gray-100"
-                }`}
-              >
-                <FolderOpen className="h-5 w-5 mr-2" />
-                {isSidebarOpen && "Case Management"}
-              </Button>
-            </li>
-            <li>
-              <Button
-                onClick={() => setActiveSection("legal-research")}
-                className={`${baseButtonStyle} ${
-                  activeSection === "legal-research"
-                    ? "bg-gray-200 text-black"
-                    : "bg-white text-black hover:bg-gray-100"
-                }`}
-              >
-                <Search className="h-5 w-5 mr-2" />
-                {isSidebarOpen && "Legal Research"}
-              </Button>
-            </li>
-            <li>
-              <Button
-                onClick={() => setActiveSection("communication")}
-                className={`${baseButtonStyle} ${
-                  activeSection === "communication"
-                    ? "bg-gray-200 text-black"
-                    : "bg-white text-black hover:bg-gray-100"
-                }`}
-              >
-                <MessageSquare className="h-5 w-5 mr-2" />
-                {isSidebarOpen && "Communication"}
-              </Button>
-            </li>
-            <li>
-              <Button
-                onClick={() => setActiveSection("settings")}
-                className={`${baseButtonStyle} ${
-                  activeSection === "settings"
-                    ? "bg-gray-200 text-black"
-                    : "bg-white text-black hover:bg-gray-100"
-                }`}
-              >
-                <Settings className="h-5 w-5 mr-2" />
-                {isSidebarOpen && "Settings"}
-              </Button>
-            </li>
+            {[
+              { name: "Dashboard", icon: <Grid className="h-5 w-5 mr-2" />, section: "dashboard" },
+              { name: "Case Management", icon: <FolderOpen className="h-5 w-5 mr-2" />, section: "case-management" },
+              { name: "Legal Research", icon: <Search className="h-5 w-5 mr-2" />, section: "legal-research" },
+              { name: "Communication", icon: <MessageSquare className="h-5 w-5 mr-2" />, section: "communication" },
+              { name: "Settings", icon: <Settings className="h-5 w-5 mr-2" />, section: "settings" },
+            ].map(({ name, icon, section }) => (
+              <li key={section}>
+                <Button
+                  onClick={() => {
+                    setActiveSection(section);
+                    if (window.innerWidth < 640) setIsSidebarOpen(false);
+                  }}
+                  className={`${baseButtonStyle} ${
+                    activeSection === section
+                      ? "bg-gray-200 text-black"
+                      : "bg-white text-black hover:bg-gray-100"
+                  }`}
+                >
+                  {icon}
+                  {isSidebarOpen && name}
+                </Button>
+              </li>
+            ))}
           </ul>
         </nav>
 
@@ -170,13 +131,24 @@ export default function UnifiedDashboardComponent() {
           <Button
             variant="outline"
             className="text-black border-black w-full"
-            onClick={handleLogout} // Log out on click
+            onClick={() => {
+              handleLogout();
+              if (window.innerWidth < 640) setIsSidebarOpen(false);
+            }}
           >
             <LogOut className="mr-3 h-5 w-5" />
             {isSidebarOpen && "Logout"}
           </Button>
         </div>
       </div>
+
+      {/* Overlay for Mobile */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black opacity-50 sm:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        ></div>
+      )}
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">

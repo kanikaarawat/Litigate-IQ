@@ -11,6 +11,7 @@ interface AddNewEventModalProps {
   onAddEvent: (newEvent: any) => void;
   onEditEvent?: (updatedEvent: any) => void;
   existingEvent?: any; // Optional for editing
+  
 }
 
 export default function AddNewEventModal({ onClose, onAddEvent, onEditEvent, existingEvent }: AddNewEventModalProps) {

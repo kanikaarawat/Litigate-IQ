@@ -15,8 +15,38 @@ import { FileText, Star, StarOff, Search } from "lucide-react";
 import { Toaster, toast } from "react-hot-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-interface CaseDetailViewProps {
+interface Note {
+  content: string;
+  date: string;
+}
+
+interface Document {
+  name: string;
+  url: string;
+}
+
+interface CaseDetails {
   caseId: string;
+  title: string;
+  clientName: string;
+  contactInfo: {
+    address: string;
+    email: string;
+    phone: string;
+  };
+  caseType: string;
+  description: string;
+  assignedLawyer: string;
+  assignedJudge: string;
+  section: string;
+  courtAddress: string;
+  caseFileDate: string;
+  notes: Note[];
+  documents: Document[];
+}
+
+interface CaseDetailViewProps {
+  caseDetails: CaseDetails;
 }
 
 export default function CaseDetailView({ caseId }: CaseDetailViewProps) {

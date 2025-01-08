@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/db";
-import bcrypt from "bcryptjs";
+// import bcrypt from "bcryptjs";
 
 export async function PUT(req) {
   const { db } = await connectToDatabase();

@@ -5,40 +5,52 @@ import CaseDetailView from "@/components/CaseDetailView";
 import { useState, useEffect } from "react";
 
 interface CaseDetails {
-    caseId: string;
-    title: string;
-    clientName: string;
-    contactInfo: {
-      address: string;
-      email: string;
-      phone: string;
-    };
-    caseType: string;
-    description: string;
-    assignedLawyer: string;
-    assignedJudge: string;
-    section: string;
-    courtAddress: string;
-    caseFileDate: string;
-    notes: { content: string; date: string }[];
-    documents: { name: string; url: string }[];
-  }
-  
+  caseId: string;
+  title: string;
+  clientName: string;
+  contactInfo: {
+    address: string;
+    email: string;
+    phone: string;
+  };
+  caseType: string;
+  description: string;
+  assignedLawyer: string;
+  assignedJudge: string;
+  section: string;
+  courtAddress: string;
+  caseFileDate: string;
+  notes: { content: string; date: string }[];
+  documents: { name: string; url: string }[];
+}
 
 export default function CaseDetailPage() {
-    const params = useParams();
-    const [caseDetails, setCaseDetails] = useState(null);
+  const params = useParams();
+  const [caseDetails, setCaseDetails] = useState<CaseDetails | null>(null);
 
-    useEffect(() => {
-        const fetchCaseDetails = async () => {
-            const response = await fetch(`/api/cases/${params?.id}`);
-            const data = await response.json();
-            setCaseDetails(data);
-        };
-        fetchCaseDetails();
-    }, [params?.id]);
+  useEffect(() => {
+    const fetchCaseDetails = async () => {
+      if (!params?.id || typeof params.id !== "string") {
+        console.error("Invalid or missing case ID");
+        return;
+      }
 
-    if (!caseDetails) return <p>Loading...</p>;
+      try {
+        const response = await fetch(`/api/cases/${params.id}`);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch case details: ${response.statusText}`);
+        }
+        const data = await response.json();
+        setCaseDetails(data);
+      } catch (error) {
+        console.error("Error fetching case details:", error);
+      }
+    };
 
-    return <CaseDetailView caseDetails={caseDetails} />;
+    fetchCaseDetails();
+  }, [params?.id]);
+
+  if (!caseDetails) return <p>Loading...</p>;
+
+  return <CaseDetailView caseId={params.id as string} />;
 }

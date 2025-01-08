@@ -2,6 +2,8 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
+import Image from "next/image";
+
 import {
   Card,
   CardContent,
@@ -82,7 +84,7 @@ export default function SettingsComponent() {
               <Label htmlFor="profile-photo">Profile Photo</Label>
               <div className="flex items-center space-x-4">
                 {profilePhoto && (
-                  <img
+                  <Image
                     src={profilePhoto}
                     alt="Profile Preview"
                     className="w-16 h-16 rounded-full object-cover border"

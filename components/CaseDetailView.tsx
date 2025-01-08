@@ -49,7 +49,7 @@ interface CaseDetailViewProps {
   caseDetails: CaseDetails;
 }
 
-export default function CaseDetailView({ CaseDetails }: CaseDetailViewProps) {
+export default function CaseDetailView({ caseDetails }: CaseDetailViewProps) {
   // const [caseData, setCaseData] = useState<any>(null);
   const [notes, setNotes] = useState("");
   const [notesList, setNotesList] = useState<Note[]>(caseDetails.notes || []);

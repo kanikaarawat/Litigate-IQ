@@ -6,11 +6,26 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Clock, FileText } from "lucide-react";
+import Image from "next/image";
+
+interface CaseDetails {
+    title: string;
+    clientName: string;
+    opposingParty: string;
+    caseType: string;
+    status: string;
+    description: string;
+    assignedLawyer: string;
+    timeline: { event: string; date: string }[];
+    documents: { name: string; url: string; category: string }[];
+}
+
 
 export default function CaseMoreInfoPage() {
     const params = useParams();
     const id = params?.id;
-    const [caseDetails, setCaseDetails] = useState(null);
+    const [caseDetails, setCaseDetails] = useState<CaseDetails | null>(null);
+
 
     useEffect(() => {
         const fetchCaseDetails = async () => {
@@ -26,7 +41,7 @@ export default function CaseMoreInfoPage() {
     return (
         <div className="p-6 space-y-8 bg-gray-50 min-h-screen">
             <h1 className="text-3xl font-bold text-gray-800">
-                Case Details: {caseDetails.title}
+            Case Details: {caseDetails?.title || "No title available"}
             </h1>
 
             {/* Case Details Section */}

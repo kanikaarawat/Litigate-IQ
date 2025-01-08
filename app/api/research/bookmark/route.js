@@ -1,4 +1,4 @@
-import { connectToDatabase } from "../../../../lib/db";
+import { connectToDatabase } from "@/lib/db";
 
 export async function POST(req) {
     const { db } = await connectToDatabase();

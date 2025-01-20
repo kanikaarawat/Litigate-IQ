@@ -206,24 +206,7 @@ export default function UnifiedDashboardComponent() {
       case "dashboard":
         return <Dashboard />;
       case "case-management":
-<<<<<<< HEAD
-        console.log("✅ Rendering CaseManagement component"); // ✅ Log when CaseManagement is shown
-        return (
-          <CaseManagement
-            onCaseSelect={(id: number) => {
-              setSelectedCaseId(id);
-              setActiveSection("case-detail");
-            }}
-          />
-        );
-      case "case-detail":
-        if (selectedCaseId !== null) {
-          return <CaseDetailView caseId={selectedCaseId.toString()} />;
-        }
-        return <p>No case selected. Go back to Case Management.</p>;
-=======
         return <CaseManagement onCaseSelect={(caseId) => console.log(`Selected Case: ${caseId}`)} />;
->>>>>>> c45762e4ff7d89a309b65196318df1579fab0b55
       case "legal-research":
         return <LegalResearchTool />;
       case "communication":

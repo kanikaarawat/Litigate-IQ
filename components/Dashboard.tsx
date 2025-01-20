@@ -167,7 +167,7 @@ export default function Dashboard() {
 
   const handleUpdateEvent = async (updatedEvent: any) => {
     try {
-      const response = await fetch(`https://dummy-backend-15jt.onrender.com/dashboard/events/${updatedEventId}`, {
+      const response = await fetch(`https://dummy-backend-15jt.onrender.com/dashboard/events/${updatedEvent.Id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

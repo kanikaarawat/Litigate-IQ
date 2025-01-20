@@ -62,7 +62,7 @@ export default function CaseDetailView({ caseId }: CaseDetailViewProps) {
       }
 
       try {
-        const response = await fetch(`/api/cases/${caseId}`);
+        const response = await fetch(`https://dummy-backend-15jt.onrender.com/caseDetails/?lawyerId=12345&caseId=${caseId}`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }

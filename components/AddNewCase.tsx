@@ -80,7 +80,7 @@ export default function AddNewCaseModal({ onClose, onAddCase }: AddNewCaseModalP
     };
 
     try {
-      const response = await fetch("/api/cases/create", {
+      const response = await fetch(`https://dummy-backend-15jt.onrender.com/caseDetails/create`,{
         method: "POST",
         headers: {
           "Content-Type": "application/json",

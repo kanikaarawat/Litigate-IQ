@@ -53,7 +53,7 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await fetch("/api/user");
+        const response = await fetch(`https://dummy-backend-15jt.onrender.com/user`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -67,7 +67,7 @@ export default function Dashboard() {
 
     const fetchStats = async () => {
       try {
-        const response = await fetch("/api/dashboard/stats");
+        const response = await fetch(`https://dummy-backend-15jt.onrender.com/dashboard/stats`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -85,7 +85,7 @@ export default function Dashboard() {
 
     const fetchNotifications = async () => {
       try {
-        const response = await fetch("/api/dashboard/notifications");
+        const response = await fetch(`https://dummy-backend-15jt.onrender.com/dashboard/notifications`);
         const data = await response.json();
         setNotifications(data);
       } catch (error) {
@@ -102,7 +102,7 @@ export default function Dashboard() {
   const fetchEvents = async (date: Date) => {
     try {
       const formattedDate = date.toISOString(); 
-      const response = await fetch(`/api/dashboard/events?date=${formattedDate}`); 
+      const response = await fetch(`https://dummy-backend-15jt.onrender.com/dashboard/events?date=${formattedDate}`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -122,7 +122,7 @@ export default function Dashboard() {
 
   const handleAddEvent = async (eventData: any) => {
     try {
-      const response = await fetch("/api/dashboard/events", {
+      const response = await fetch(`https://dummy-backend-15jt.onrender.com/dashboard/events`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -147,7 +147,7 @@ export default function Dashboard() {
     if (!eventToDelete) return;
 
     try {
-      const response = await fetch(`/api/dashboard/events/${eventToDelete}`, {
+      const response = await fetch(`https://dummy-backend-15jt.onrender.com/dashboard/events/${eventToDelete}`, {
         method: "DELETE",
       });
 
@@ -167,7 +167,7 @@ export default function Dashboard() {
 
   const handleUpdateEvent = async (updatedEvent: any) => {
     try {
-      const response = await fetch(`/api/dashboard/events/${updatedEvent.id}`, {
+      const response = await fetch(`https://dummy-backend-15jt.onrender.com/dashboard/events/${updatedEventId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

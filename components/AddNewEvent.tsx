@@ -67,7 +67,7 @@ export default function AddNewEventModal({ onClose, onAddEvent, onEditEvent, exi
     try {
       if (existingEvent && onEditEvent) {
         // Handle editing an event
-        const response = await fetch(`/api/events/${existingEvent.id}`, {
+        const response = await fetch(`https://dummy-backend-15jt.onrender.com/events/${existingEventId}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -86,7 +86,7 @@ export default function AddNewEventModal({ onClose, onAddEvent, onEditEvent, exi
         onEditEvent(result.event); // Notify the parent component with the updated event
       } else {
         // Handle adding a new event
-        const response = await fetch("/api/events/create", {
+        const response = await fetch(`https://dummy-backend-15jt.onrender.com/events/create`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

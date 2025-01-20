@@ -32,10 +32,13 @@ export default function UnifiedDashboardComponent() {
   };
 
   const renderContent = () => {
+    console.log("Rendering section:", activeSection); // ✅ Log active section
+
     switch (activeSection) {
       case "dashboard":
         return <Dashboard />;
       case "case-management":
+        console.log("✅ Rendering CaseManagement component"); // ✅ Log when CaseManagement is shown
         return (
           <CaseManagement
             onCaseSelect={(id: number) => {

@@ -67,7 +67,7 @@ export default function AddNewEventModal({ onClose, onAddEvent, onEditEvent, exi
     try {
       if (existingEvent && onEditEvent) {
         // Handle editing an event
-        const response = await fetch(`https://dummy-backend-15jt.onrender.com/events/${existingEventId}`, {
+        const response = await fetch(`https://dummy-backend-15jt.onrender.com/events/${existingEvent.id}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",

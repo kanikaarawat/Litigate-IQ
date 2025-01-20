@@ -1,62 +1,82 @@
-Certainly! Here's the modified version of your README file with the added instructions to change the directory and install the necessary dependencies:
+# Litigate IQ Frontend
+
+Welcome to the **Litigate IQ Frontend** repository! This project is built using **Next.js** and is deployed on **Vercel**.
+
+## 🚀 Live Website
+Access the deployed application here:  
+🔗 [Litigate IQ Frontend](https://frontend-litigate-without-db.vercel.app/)
+
+## 🛠️ Getting Started
+
+### Prerequisites
+Ensure you have the following installed:
+- **Node.js** (Recommended: Latest LTS version)
+- **npm**, **yarn**, or **pnpm** (for package management)
+
+### Installation
+Clone the repository and install dependencies:
+
+```bash
+# Clone the repository
+git clone https://github.com/Aadityavv/Frontend-Litigate-without-db.git
+
+# Navigate to the project directory
+cd Frontend-Litigate-without-db
+
+# Install dependencies
+npm install  # or yarn install, or pnpm install
+```
+
+## 🔧 Running the Development Server
+Start the development server with one of the following commands:
+
+```bash
+npm run dev  # or yarn dev, or pnpm dev
+```
+
+Once started, open [http://localhost:3000](http://localhost:3000) in your browser to see the application running locally.
+
+## 🏗️ Project Structure
+```
+Frontend-Litigate-without-db/
+├── public/              # Static assets
+├── src/
+│   ├── app/             # Application pages
+│   ├── components/      # Reusable components
+│   ├── styles/          # Global styles
+│   ├── utils/           # Utility functions
+├── .env.example         # Example environment file
+├── package.json         # Project metadata & dependencies
+└── README.md            # Project documentation
+```
+
+## 🎨 Font Optimization
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) for automatic font optimization with **Geist**, a font family provided by Vercel.
+
+## 🚀 Deployment
+This project is deployed on **Vercel**. To deploy your own version:
+
+```bash
+vercel
+```
+
+For detailed deployment instructions, refer to the [Next.js Deployment Guide](https://nextjs.org/docs/deployment).
+
+## 📚 Learn More
+- [Next.js Documentation](https://nextjs.org/docs)  
+- [Next.js GitHub Repository](https://github.com/vercel/next.js)
+
+## 🤝 Contributing
+If you'd like to contribute:
+1. Fork the repository
+2. Create a new branch (`git checkout -b feature-branch`)
+3. Make your changes and commit (`git commit -m 'Add new feature'`)
+4. Push to the branch (`git push origin feature-branch`)
+5. Create a Pull Request
+
+## 📜 License
+This project is licensed under the **MIT License**.
 
 ---
+**Maintained by [Aadityavv](https://github.com/Aadityavv)**
 
-# Getting Started with the Project
-
-Before starting the development server, you need to navigate to the project directory and install the required dependencies. Follow these steps:
-
-1. **Change to the project directory:**
-
-```bash
-cd litigate-iq-ux-main
-```
-
-2. **Install the required node modules:**
-
-```bash
-npm install
-```
-
-After installing the dependencies, you can proceed with starting the development server.
-
-## Development Server
-
-Run the following command to start the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) in your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page will auto-update as you edit the file.
-
-## Font Optimization
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, check out the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - Learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - An interactive Next.js tutorial.
-
-You can also check out [the Next.js GitHub repository](https://github.com/vercel/next.js). Your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-For more details, visit our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying).
-
----
-
-This version adds the necessary steps to first `cd` into the project directory and install the dependencies before running the development server.

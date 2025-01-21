@@ -51,7 +51,7 @@ export default function CaseManagement({ onCaseSelect }: CaseManagementProps) {
         const data: Case[] = await fetchCases();
         console.log("✅ Data received in CaseManagement.tsx:", data); // Should log fetched data
 
-        setCases(data);
+        setCases(data.reverse());
       } catch (error) {
         console.error("❌ Error fetching cases:", error);
         toast.error("Failed to fetch cases. Please try again later.");

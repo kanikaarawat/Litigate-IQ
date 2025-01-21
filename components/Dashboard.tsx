@@ -23,7 +23,7 @@ import { PlusCircle, Star, StarOff, Search } from "lucide-react";
 export default function Dashboard() {
   // State Variables
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
-  const [lawyerName, setLawyerName] = useState("Guest"); // Dynamic lawyer name
+  const [lawyerName, setLawyerName] = useState("John Doe"); // Dynamic lawyer name
   const [events, setEvents] = useState<any[]>([]); // Events fetched from API
   const [notifications, setNotifications] = useState<any[]>([]); // Notifications
   const [deadlines, setDeadlines] = useState<any[]>([]); // Upcoming deadlines

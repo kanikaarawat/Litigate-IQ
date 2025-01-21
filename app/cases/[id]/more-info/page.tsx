@@ -10,8 +10,8 @@ import Image from "next/image";
 import { fetchCaseById } from "@/lib/api/cases";
 
 interface CaseDetails {
-    title: string;
-    clientName: string;
+    caseTitle: string;
+    partyName: string;
     opposingParty: string;
     caseType: string;
     status: string;
@@ -27,7 +27,7 @@ export default function CaseMoreInfoPage() {
     const [caseDetails, setCaseDetails] = useState<CaseDetails | null>(null);
 
     useEffect(() => {
-        const fetchCaseDetails = async () => {
+        const fetchCaseDetails = async (id:any) => {
             if (!id) return;
             try {
                 const data = await fetchCaseById(id);
@@ -36,7 +36,7 @@ export default function CaseMoreInfoPage() {
                 console.error("Error fetching case details:", error);
             }
         };
-        fetchCaseDetails();
+        fetchCaseDetails(id);
     }, [id]);
 
     if (!caseDetails) return <p>Loading...</p>;
@@ -58,7 +58,7 @@ export default function CaseMoreInfoPage() {
                     <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2">
                         <div>
                             <p className="font-medium text-gray-600">Client Name</p>
-                            <p className="text-gray-700">{caseDetails.clientName}</p>
+                            <p className="text-gray-700">{caseDetails.partyName}</p>
                         </div>
                         <div>
                             <p className="font-medium text-gray-600">Opposing Party</p>

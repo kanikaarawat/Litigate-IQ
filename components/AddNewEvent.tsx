@@ -16,7 +16,7 @@ interface AddNewEventModalProps {
 
 export default function AddNewEventModal({ onClose, onAddEvent, onEditEvent, existingEvent }: AddNewEventModalProps) {
   const [title, setTitle] = useState(existingEvent?.title || "");
-  const [clientName, setClientName] = useState(existingEvent?.clientName || "");
+  const [caseID, setCaseID] = useState(existingEvent?.caseID || "");
   const [description, setDescription] = useState(existingEvent?.description || "");
   const [location, setLocation] = useState(existingEvent?.location || "");
   const [date, setDate] = useState(existingEvent?.date || "");
@@ -27,7 +27,7 @@ export default function AddNewEventModal({ onClose, onAddEvent, onEditEvent, exi
       alert("Title is required.");
       return false;
     }
-    if (!clientName) {
+    if (!caseID) {
       alert("Client Name is required.");
       return false;
     }
@@ -57,7 +57,7 @@ export default function AddNewEventModal({ onClose, onAddEvent, onEditEvent, exi
 
     const eventDetails = {
       title,
-      clientName,
+      caseID,
       description,
       location,
       date,
@@ -150,16 +150,15 @@ export default function AddNewEventModal({ onClose, onAddEvent, onEditEvent, exi
 
             <div>
               <label
-                htmlFor="clientName"
+                htmlFor="caseID"
                 className="block text-sm font-medium text-gray-700"
               >
-                Client Name
-              </label>
+                Case ID              </label>
               <Input
                 type="text"
-                id="clientName"
-                value={clientName}
-                onChange={(e) => setClientName(e.target.value)}
+                id="caseID"
+                value={caseID}
+                onChange={(e) => setCaseID(e.target.value)}
                 required
                 className="text-sm"
               />

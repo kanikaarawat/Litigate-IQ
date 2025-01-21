@@ -71,7 +71,7 @@ export default function CaseDetailView({ caseId }: CaseDetailViewProps) {
         }
         const data = await response.json();
         console.log("Fetched Case Details:", data); // Debugging log
-        setCaseDetails(data);
+        setCaseDetails(data.message);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching case details:", error);

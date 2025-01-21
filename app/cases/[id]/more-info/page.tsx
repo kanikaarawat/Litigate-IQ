@@ -6,18 +6,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Clock, FileText } from "lucide-react";
+import Image from "next/image";
 import { fetchCaseById } from "@/lib/api/cases";
 
 interface CaseDetails {
-    caseTitle: string;
-    partyName: string;
+    title: string;
+    clientName: string;
     opposingParty: string;
     caseType: string;
     status: string;
-    caseDesc: string;
-    judgeAssigned: string;
-    sectionOrAct: string;
-    timeline: { eventDesc: string; eventDate: string }[];
+    description: string;
+    assignedLawyer: string;
+    timeline: { event: string; date: string }[];
     documents: { name: string; url: string; category: string }[];
 }
 
@@ -44,7 +44,7 @@ export default function CaseMoreInfoPage() {
     return (
         <div className="p-6 space-y-8 bg-gray-50 min-h-screen">
             <h1 className="text-3xl font-bold text-gray-800">
-                Case Details: {caseDetails?.caseTitle || "No title available"}
+            Case Details: {caseDetails?.title || "No title available"}
             </h1>
 
             {/* Case Details Section */}
@@ -57,8 +57,8 @@ export default function CaseMoreInfoPage() {
                 <CardContent>
                     <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2">
                         <div>
-                            <p className="font-medium text-gray-600">Party Name</p>
-                            <p className="text-gray-700">{caseDetails.partyName}</p>
+                            <p className="font-medium text-gray-600">Client Name</p>
+                            <p className="text-gray-700">{caseDetails.clientName}</p>
                         </div>
                         <div>
                             <p className="font-medium text-gray-600">Opposing Party</p>
@@ -75,16 +75,12 @@ export default function CaseMoreInfoPage() {
                             </Badge>
                         </div>
                         <div className="sm:col-span-2">
-                            <p className="font-medium text-gray-600">Case Description</p>
-                            <p className="text-gray-700">{caseDetails.caseDesc}</p>
+                            <p className="font-medium text-gray-600">Description</p>
+                            <p className="text-gray-700">{caseDetails.description}</p>
                         </div>
                         <div>
-                            <p className="font-medium text-gray-600">Assigned Judge</p>
-                            <p className="text-gray-700">{caseDetails.judgeAssigned}</p>
-                        </div>
-                        <div>
-                            <p className="font-medium text-gray-600">Section/Act</p>
-                            <p className="text-gray-700">{caseDetails.sectionOrAct}</p>
+                            <p className="font-medium text-gray-600">Assigned Lawyer</p>
+                            <p className="text-gray-700">{caseDetails.assignedLawyer}</p>
                         </div>
                     </div>
                 </CardContent>
@@ -106,8 +102,8 @@ export default function CaseMoreInfoPage() {
                                         <Clock className="text-blue-600 h-6 w-6" />
                                     </div>
                                     <div>
-                                        <p className="font-medium text-gray-800">{event.eventDesc}</p>
-                                        <p className="text-sm text-gray-600">{event.eventDate.split("T")[0]}</p>
+                                        <p className="font-medium text-gray-800">{event.event}</p>
+                                        <p className="text-sm text-gray-600">{event.date}</p>
                                     </div>
                                 </li>
                             ))}
@@ -127,7 +123,10 @@ export default function CaseMoreInfoPage() {
                     <ScrollArea className="h-64">
                         <ul className="space-y-4">
                             {caseDetails.documents.map((doc, index) => (
-                                <li key={index} className="flex items-center justify-between">
+                                <li
+                                    key={index}
+                                    className="flex items-center justify-between"
+                                >
                                     <div className="flex items-center space-x-3">
                                         <FileText className="text-blue-600 h-6 w-6" />
                                         <a

@@ -57,7 +57,7 @@ export default function Dashboard() {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        setLawyerName(data.name || "Guest");
+        setLawyerName(data.name || lawyerName);
       } catch (error) {
         console.error("Error fetching user details:", error);
         setLawyerName("Guest");
@@ -100,14 +100,28 @@ export default function Dashboard() {
   // Fetch events dynamically based on the selected date
   const fetchEvents = async (date: Date) => {
     try {
-      const formattedDate = date.toISOString(); 
+      const formattedDate = selectedDate; 
+      console.log(selectedDate)
       const response = await fetch(`https://dashboardservice-production.up.railway.app/api/getEvents/?lawyerId=12345&eventDate=${formattedDate}`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      console.log("Events data fetched:", data); 
-      setEvents(data); 
+      console.log("Events data fetched:", data);
+  
+      // Extract events from the nested response
+      const casesWithEvents = data.message.casesWithEventsAndParties || [];
+      const eventsArray = casesWithEvents.flatMap((caseData: any) => 
+        caseData.events.map((event: any) => ({
+          ...event,
+          caseId: caseData.caseId, // Include caseId in the event object
+          caseTitle: caseData.caseTitle, // Include caseTitle in the event object
+          partyName: caseData.partyName, // Include partyName in the event object
+        }))
+      );
+  
+      setEvents(eventsArray); 
+      console.log("Updated Events State:", eventsArray);
     } catch (error) {
       console.error("Error fetching events:", error);
       toast.error("Failed to fetch events. Please try again.");
@@ -145,18 +159,27 @@ export default function Dashboard() {
   };
 
   const handleDeleteEvent = async () => {
-    if (!eventToDelete) return;
-
+    if (!eventToDelete) {
+      toast.error("Event ID is missing.");
+      return;
+    }
+  console.log(eventToDelete)
     try {
-      const response = await fetch(`https://dummy-backend-15jt.onrender.com/dashboard/events/${eventToDelete}`, {
-        method: "DELETE",
-      });
-
+      const lawyerId = "12345"; // Replace with dynamic lawyerId if available
+      const caseId = "782truiqg"; // Replace with dynamic caseId if available
+      const response = await fetch(
+        `https://dashboardservice-production.up.railway.app/delete/deleteEvent?lawyerId=${lawyerId}&caseId=${caseId}&eventId=${eventToDelete}`,
+        {
+          method: "DELETE",
+        }
+      );
+  
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
-      setEvents((prevEvents) => prevEvents.filter((event) => event.id !== eventToDelete));
+  
+      // Remove the deleted event from the state
+      setEvents((prevEvents) => prevEvents.filter((event) => event.eventId !== eventToDelete));
       toast.success("Event deleted successfully!");
     } catch (error) {
       console.error("Error deleting event:", error);
@@ -165,14 +188,14 @@ export default function Dashboard() {
       setEventToDelete(null);
     }
   };
-
   const handleEditEvent = (event: any) => {
     setEditingEvent(event);
   };
 
   const handleUpdateEvent = async (updatedEvent: any) => {
     try {
-      const response = await fetch(`https://dummy-backend-15jt.onrender.com/dashboard/events/${updatedEvent.id}`, {
+      const response = await fetch(`https://dashboardservice-production.up.railway.app/put/updateEvent
+${updatedEvent.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -352,23 +375,22 @@ export default function Dashboard() {
                   Add Event
                 </Button>
               </div>
-              <ul className="space-y-3">
+                            <ul className="space-y-3">
                 {events.length > 0 ? (
                   events.map((event) => (
                     <li
-                      key={event.id}
+                      key={event.eventId}
                       className="flex justify-between items-center p-4 bg-gray-100 rounded-lg shadow-sm"
                     >
                       <div>
-                        <p className="font-bold">Title: {event.title}</p>
-                        <p><strong>Client Name:</strong> {event.clientName || "N/A"}</p>
-                        <p><strong>Description:</strong> {event.description}</p>
-                        <p><strong>Location:</strong> {event.location || "N/A"}</p>
+                        <p className="font-bold">Case ID: {event.caseId}</p>
+                        <p><strong>Case Title:</strong> {event.caseTitle}</p>
+                        <p><strong>Party Name:</strong> {event.partyName}</p>
+                        <p><strong>Event Type:</strong> {event.eventType}</p>
+                        <p><strong>Description:</strong> {event.eventDesc}</p>
+                        <p><strong>Location:</strong> {event.eventLocation}</p>
                         <p>
-                          <strong>Time:</strong> {new Date(event.date).toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
+                          <strong>Date:</strong> {event.eventDate} | <strong>Time:</strong> {event.eventTime}
                         </p>
                       </div>
                       <div className="flex space-x-2">
@@ -379,7 +401,7 @@ export default function Dashboard() {
                           Edit
                         </Button>
                         <Button
-                          onClick={() => setEventToDelete(event.id)}
+                          onClick={() => setEventToDelete(event.eventId)}
                           className="bg-red-500 hover:bg-red-600 text-white"
                         >
                           Delete

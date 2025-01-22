@@ -337,7 +337,7 @@ ${updatedEvent.id}`, {
   };
 
   return (
-    <div className="space-y-8 p-6 bg-white min-h-screen">
+    <div className="space-y-8 p-2 bg-white min-h-screen">
       {/* Welcome Section */}
       <div className="flex items-center space-x-4">
         <UserCircleIcon className="w-16 h-16 text-blue-600" />
@@ -355,7 +355,7 @@ ${updatedEvent.id}`, {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white rounded-lg p-1 py-4 shadow-md">
+            <div className="bg-white rounded-lg p-0 py-4 shadow-md">
               <Calendar
                 mode="single"
                 selected={selectedDate}
@@ -363,14 +363,14 @@ ${updatedEvent.id}`, {
                 className="border rounded-md"
               />
             </div>
-            <div className="bg-white rounded-lg p-4 shadow-md md:col-span-2">
+            <div className="bg-white rounded-lg p-2 shadow-md md:col-span-2">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="font-semibold text-xl text-gray-700">
                   Events on {selectedDate ? format(selectedDate, "PPP") : "Select a date"}
                 </h3>
                 <Button
                   onClick={() => setIsAddEventModalOpen(true)}
-                  className="flex items-center px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md"
+                  className="flex items-center px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md"
                 >
                   Add Event
                 </Button>

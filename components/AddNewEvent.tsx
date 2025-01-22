@@ -90,9 +90,9 @@ export default function AddNewEventModal({ onClose, onAddEvent, onEditEvent, exi
     >
       <motion.div
         className="bg-white rounded-lg shadow-lg w-full max-w-xl p-6 space-y-4 overflow-y-auto max-h-screen"
-        initial={{ scale: 0.8 }}
-        animate={{ scale: 1 }}
-        exit={{ scale: 0.2 }}
+        initial={{ scale: 0.5 }}
+        animate={{ scale: 0.9 }}
+        exit={{ scale: 0.5 }}
       >
         <h2 className="text-lg font-semibold text-gray-800 mb-4 text-center">
           {existingEvent ? "Edit Event" : "Add New Event"}

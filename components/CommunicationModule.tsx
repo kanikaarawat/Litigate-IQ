@@ -142,7 +142,7 @@ export default function CommunicationModule() {
   };
 
   return (
-    <div className="space-y-6 p-4 sm:p-6 bg-gray-50">
+    <div className="space-y-6 p-0 sm:p-6 bg-gray-0">
       {/* Communication Module */}
       <Card className="shadow-lg">
         <CardHeader>

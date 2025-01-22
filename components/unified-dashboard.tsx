@@ -156,32 +156,33 @@ export default function UnifiedDashboardComponent() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
-<div className="flex justify-between items-center px-4 py-3 bg-white shadow sm:px-8">
-  {/* Mobile Menu Button */}
-  <Button
-    variant="ghost"
-    className="sm:hidden"
-    onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-    aria-label="Toggle Menu"
-  >
-    {isSidebarOpen ? (
-      <ChevronsLeft className="h-6 w-6" />
-    ) : (
-      <Menu className="h-6 w-6" />
-    )}
-  </Button>
+        <div className="flex justify-between items-center px-4 py-3 bg-white shadow sm:px-8">
+          {/* Mobile Menu Button */}
+          <Button
+            variant="ghost"
+            className="sm:hidden"
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            aria-label="Toggle Menu"
+          >
+            {isSidebarOpen ? (
+              <ChevronsLeft className="h-6 w-6" />
+            ) : (
+              <Menu className="h-6 w-6" />
+            )}
+          </Button>
 
-  {/* Centered Page Title */}
-  <h2 className="text-xl font-bold text-gray-800 flex-1 text-center sm:text-left">
-    {activeSection
-      .split("-")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ")}
-  </h2>
+          {/* Clickable Title: LitigateIQ */}
+          <Button
+            variant="ghost"
+            onClick={() => setActiveSection("dashboard")}
+            className="text-2xl font-bold text-gray-800 flex-1 text-center sm:text-left hover:bg-transparent"
+          >
+            LitigateIQ
+          </Button>
 
-  {/* Spacer to balance the mobile menu button */}
-  <div className="sm:hidden w-10"></div>
-</div>
+          {/* Spacer to balance the mobile menu button */}
+          <div className="sm:hidden w-10"></div>
+        </div>
 
         {/* Main Content Area */}
         <main className="flex-1 overflow-y-auto p-4 sm:p-8 bg-gray-100">

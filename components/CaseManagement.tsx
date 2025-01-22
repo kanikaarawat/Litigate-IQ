@@ -91,7 +91,7 @@ export default function CaseManagement({ onCaseSelect }: CaseManagementProps) {
   };
 
   return (
-    <div className="p-4 sm:p-6 bg-gray-50">
+    <div className="p-2 sm:p-6 bg-gray-0">
       <Card className="shadow-lg max-w-7xl mx-auto">
         <Toaster position="top-right" reverseOrder={false} />
         <CardHeader>

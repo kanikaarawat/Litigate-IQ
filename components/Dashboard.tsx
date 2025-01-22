@@ -355,7 +355,7 @@ ${updatedEvent.id}`, {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white rounded-lg p-0 py-4 shadow-md">
+            <div className="bg-white rounded-lg mx-2 xl:mx-10   shadow-md">
               <Calendar
                 mode="single"
                 selected={selectedDate}

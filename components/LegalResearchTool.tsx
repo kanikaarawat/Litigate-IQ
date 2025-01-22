@@ -81,7 +81,7 @@ export default function LegalResearchTool() {
   };
 
   return (
-    <div className="p-4 sm:p-6 bg-gray-50">
+    <div className="p-0 sm:p-6 bg-gray-0">
       <Toaster position="top-right" />
       <Card className="shadow-lg max-w-7xl mx-auto">
         <CardHeader>

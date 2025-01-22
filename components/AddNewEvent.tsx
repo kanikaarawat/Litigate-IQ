@@ -16,9 +16,10 @@ interface AddNewEventModalProps {
 
 export default function AddNewEventModal({ onClose, onAddEvent, onEditEvent, existingEvent }: AddNewEventModalProps) {
   const [title, setTitle] = useState(existingEvent?.title || "");
-  const [caseID, setCaseID] = useState(existingEvent?.caseID || "");
-  const [description, setDescription] = useState(existingEvent?.description || "");
-  const [location, setLocation] = useState(existingEvent?.location || "");
+  const [caseId, setCaseId] = useState(existingEvent?.caseId || "");
+  const [lawyerId, setLawyerId] = useState(existingEvent?.lawyerId || "");
+  const [eventDesc, setEventDesc] = useState(existingEvent?.eventDesc || "");
+  const [eventLocation, setEventLocation] = useState(existingEvent?.eventLocation || "");
   const [date, setDate] = useState(existingEvent?.date || "");
   const [time, setTime] = useState(existingEvent?.time || "");
 
@@ -27,15 +28,15 @@ export default function AddNewEventModal({ onClose, onAddEvent, onEditEvent, exi
       alert("Title is required.");
       return false;
     }
-    if (!caseID) {
+    if (!caseId) {
       alert("Client Name is required.");
       return false;
     }
-    if (!description) {
-      alert("Description is required.");
+    if (!eventDesc) {
+      alert("Event Description is required.");
       return false;
     }
-    if (!location) {
+    if (!eventLocation) {
       alert("Location is required.");
       return false;
     }
@@ -44,6 +45,10 @@ export default function AddNewEventModal({ onClose, onAddEvent, onEditEvent, exi
       return false;
     }
     if (!time) {
+      alert("Time is required.");
+      return false;
+    }
+    if (!lawyerId) {
       alert("Time is required.");
       return false;
     }
@@ -57,9 +62,9 @@ export default function AddNewEventModal({ onClose, onAddEvent, onEditEvent, exi
 
     const eventDetails = {
       title,
-      caseID,
-      description,
-      location,
+      caseId,
+      eventDesc,
+      eventLocation,
       date,
       time,
     };
@@ -150,15 +155,15 @@ export default function AddNewEventModal({ onClose, onAddEvent, onEditEvent, exi
 
             <div>
               <label
-                htmlFor="caseID"
+                htmlFor="caseId"
                 className="block text-sm font-medium text-gray-700"
               >
                 Case ID              </label>
               <Input
                 type="text"
-                id="caseID"
-                value={caseID}
-                onChange={(e) => setCaseID(e.target.value)}
+                id="caseId"
+                value={caseId}
+                onChange={(e) => setCaseId(e.target.value)}
                 required
                 className="text-sm"
               />
@@ -166,16 +171,16 @@ export default function AddNewEventModal({ onClose, onAddEvent, onEditEvent, exi
 
             <div>
               <label
-                htmlFor="location"
+                htmlFor="eventLocation"
                 className="block text-sm font-medium text-gray-700"
               >
                 Location
               </label>
               <Input
                 type="text"
-                id="location"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
+                id="eventLocation"
+                value={eventLocation}
+                onChange={(e) => setEventLocation(e.target.value)}
                 required
                 className="text-sm"
               />
@@ -218,15 +223,15 @@ export default function AddNewEventModal({ onClose, onAddEvent, onEditEvent, exi
 
           <div>
             <label
-              htmlFor="description"
+              htmlFor="eventDesc"
               className="block text-sm font-medium text-gray-700"
             >
               Description
             </label>
             <Textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              id="eventDesc"
+              value={eventDesc}
+              onChange={(e) => setEventDesc(e.target.value)}
               rows={4}
               className="text-sm"
               required

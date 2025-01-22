@@ -1,33 +1,57 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { format, isSameDay } from "date-fns";
+import { format } from "date-fns";
 import { UserCircleIcon } from "@heroicons/react/24/solid";
-import Link from "next/link";
 import AddNewEventModal from "@/components/AddNewEvent";
 import ConfirmDialog from "@/components/ConfirmDialog";
 
 // UI Components
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Star, StarOff, Search } from "lucide-react";
-import { toast } from "sonner"; // For notifications
+import { PlusCircle, Edit, Trash } from "lucide-react";
+import { toast } from "sonner";
+
+// Interfaces for Type Safety
+interface Event {
+  eventId: string;
+  caseId: string;
+  caseTitle: string;
+  partyName: string;
+  eventType: string;
+  eventDesc: string;
+  eventLocation: string;
+  eventDate: string;
+  eventTime: string;
+}
+
+interface Stats {
+  totalCases: number;
+  totalCasesChange: number;
+  pendingCases: number;
+  pendingCasesChange: number;
+  overduePendingCasesCount: number;
+  resolvedCases: number;
+  resolvedCasesChange: number;
+  upcomingDeadlines: number;
+  totalCasesDetails: any[];
+  pendingCasesDetails: any[];
+  overduePendingCasesDetails: any[];
+  resolvedCasesDetails: any[];
+  upcomingDeadlineDetails: any[];
+}
 
 export default function Dashboard() {
   // State Variables
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
-  const [lawyerName, setLawyerName] = useState("John Doe"); // Dynamic lawyer name
-  const [events, setEvents] = useState<any[]>([]); // Events fetched from API
-  const [notifications, setNotifications] = useState<any[]>([]); // Notifications
-  const [deadlines, setDeadlines] = useState<any[]>([]); // Upcoming deadlines
-  const [stats, setStats] = useState({
+  const [lawyerName, setLawyerName] = useState("John Doe");
+  const [lawyerId, setLawyerId] = useState<string>("12345");
+  const [events, setEvents] = useState<Event[]>([]);
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [deadlines, setDeadlines] = useState<any[]>([]);
+  const [stats, setStats] = useState<Stats>({
     totalCases: 0,
     totalCasesChange: 0,
     pendingCases: 0,
@@ -43,9 +67,9 @@ export default function Dashboard() {
     upcomingDeadlineDetails: [],
   });
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
-  const [showCount, setShowCount] = useState(5); // Manage "Show More" count
-  const [isAddEventModalOpen, setIsAddEventModalOpen] = useState(false); // Modal state
-  const [editingEvent, setEditingEvent] = useState<any | null>(null);
+  const [showCount, setShowCount] = useState(5);
+  const [isAddEventModalOpen, setIsAddEventModalOpen] = useState(false);
+  const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [eventToDelete, setEventToDelete] = useState<string | null>(null);
 
   // Fetch user details
@@ -57,10 +81,12 @@ export default function Dashboard() {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        setLawyerName(data.name || lawyerName);
+        setLawyerName(data.name || "Guest");
+        setLawyerId(data.lawyerId || "12345"); // Set lawyerId dynamically
       } catch (error) {
         console.error("Error fetching user details:", error);
         setLawyerName("Guest");
+        setLawyerId("12345"); // Fallback to default
       }
     };
 
@@ -100,27 +126,28 @@ export default function Dashboard() {
   // Fetch events dynamically based on the selected date
   const fetchEvents = async (date: Date) => {
     try {
-      const formattedDate = selectedDate; 
-      console.log(selectedDate)
-      const response = await fetch(`https://dashboardservice-production.up.railway.app/api/getEvents/?lawyerId=12345&eventDate=${formattedDate}`);
+      const formattedDate = format(date, "yyyy-MM-dd"); // Format the date
+      const response = await fetch(
+        `https://dashboardservice-production.up.railway.app/api/getEvents/?lawyerId=${lawyerId}&eventDate=${formattedDate}`
+      );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
       console.log("Events data fetched:", data);
-  
+
       // Extract events from the nested response
       const casesWithEvents = data.message.casesWithEventsAndParties || [];
-      const eventsArray = casesWithEvents.flatMap((caseData: any) => 
+      const eventsArray = casesWithEvents.flatMap((caseData: any) =>
         caseData.events.map((event: any) => ({
           ...event,
-          caseId: caseData.caseId, // Include caseId in the event object
-          caseTitle: caseData.caseTitle, // Include caseTitle in the event object
-          partyName: caseData.partyName, // Include partyName in the event object
+          caseId: caseData.caseId,
+          caseTitle: caseData.caseTitle,
+          partyName: caseData.partyName,
         }))
       );
-  
-      setEvents(eventsArray); 
+
+      setEvents(eventsArray);
       console.log("Updated Events State:", eventsArray);
     } catch (error) {
       console.error("Error fetching events:", error);
@@ -132,23 +159,32 @@ export default function Dashboard() {
     if (selectedDate) {
       fetchEvents(selectedDate); // Fetch events for the selected date
     }
-  }, [selectedDate]);
+  }, [selectedDate, lawyerId]); // Add lawyerId as a dependency
 
   const handleAddEvent = async (eventData: any) => {
     try {
+      // Ensure the lawyerId is included in the payload
+      const payload = {
+        ...eventData,
+        lawyerId: lawyerId, // Explicitly include the lawyerId
+      };
+  
+      console.log("Payload:", payload); // Debugging
+  
       const response = await fetch(`https://dashboardservice-production.up.railway.app/post/createEvent`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(eventData),
+        body: JSON.stringify(payload),
       });
-
+  
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
+  
       const newEvent = await response.json();
+      console.log("Response:", newEvent); // Debugging
       setEvents((prevEvents) => [...prevEvents, newEvent]);
       setIsAddEventModalOpen(false);
       toast.success("Event added successfully!");
@@ -163,21 +199,25 @@ export default function Dashboard() {
       toast.error("Event ID is missing.");
       return;
     }
-  console.log(eventToDelete)
+
     try {
-      const lawyerId = "12345"; // Replace with dynamic lawyerId if available
-      const caseId = "782truiqg"; // Replace with dynamic caseId if available
+      const event = events.find((e) => e.eventId === eventToDelete);
+      if (!event) {
+        toast.error("Event not found.");
+        return;
+      }
+
       const response = await fetch(
-        `https://dashboardservice-production.up.railway.app/delete/deleteEvent?lawyerId=${lawyerId}&caseId=${caseId}&eventId=${eventToDelete}`,
+        `https://dashboardservice-production.up.railway.app/delete/deleteEvent?lawyerId=${lawyerId}&caseId=${event.caseId}&eventId=${eventToDelete}`,
         {
           method: "DELETE",
         }
       );
-  
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-  
+
       // Remove the deleted event from the state
       setEvents((prevEvents) => prevEvents.filter((event) => event.eventId !== eventToDelete));
       toast.success("Event deleted successfully!");
@@ -188,29 +228,41 @@ export default function Dashboard() {
       setEventToDelete(null);
     }
   };
-  const handleEditEvent = (event: any) => {
+
+  const handleEditEvent = (event: Event) => {
     setEditingEvent(event);
   };
 
   const handleUpdateEvent = async (updatedEvent: any) => {
     try {
-      const response = await fetch(`https://dashboardservice-production.up.railway.app/put/updateEvent
-${updatedEvent.id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updatedEvent),
-      });
-
+      // Ensure the lawyerId is included in the payload
+      const payload = {
+        ...updatedEvent,
+        lawyerId: lawyerId, // Explicitly include the lawyerId
+      };
+  
+      console.log("Payload:", payload); // Debugging
+  
+      const response = await fetch(
+        `https://dashboardservice-production.up.railway.app/put/updateEvent/${updatedEvent.eventId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+  
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
+  
       const updatedEventData = await response.json();
+      console.log("Response:", updatedEventData); // Debugging
       setEvents((prevEvents) =>
         prevEvents.map((event) =>
-          event.id === updatedEventData.id ? updatedEventData : event
+          event.eventId === updatedEventData.eventId ? updatedEventData : event
         )
       );
       setEditingEvent(null);
@@ -325,10 +377,10 @@ ${updatedEvent.id}`, {
               <button
                 className="text-blue-600 mt-2 underline"
                 onClick={() => setShowCount(showCount + 5)}
-                >
-                  Show More
-                </button>
-              )}
+              >
+                Show More
+              </button>
+            )}
           </>
         );
       default:
@@ -355,7 +407,7 @@ ${updatedEvent.id}`, {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white rounded-lg mx-2 xl:mx-10   shadow-md">
+            <div className="bg-white rounded-lg mx-2 xl:mx-5 shadow-md">
               <Calendar
                 mode="single"
                 selected={selectedDate}
@@ -375,15 +427,38 @@ ${updatedEvent.id}`, {
                   Add Event
                 </Button>
               </div>
-                            <ul className="space-y-3">
+              <ul className="space-y-3">
                 {events.length > 0 ? (
                   events.map((event) => (
                     <li
                       key={event.eventId}
-                      className="flex justify-between items-center p-4 bg-gray-100 rounded-lg shadow-sm"
+                      className="flex flex-col p-4 bg-gray-100 rounded-lg shadow-sm"
                     >
-                      <div>
+                      {/* Case ID and Buttons */}
+                      <div className="flex justify-between items-center mb-2">
                         <p className="font-bold">Case ID: {event.caseId}</p>
+                        <div className="flex space-x-2">
+                          {/* Edit Button */}
+                          <Button
+                            onClick={() => handleEditEvent(event)}
+                            className="bg-blue-500 hover:bg-blue-600 text-white p-2 flex items-center"
+                          >
+                            <Edit className="w-4 h-4" />
+                            <span className="hidden md:inline ml-2">Edit</span>
+                          </Button>
+                          {/* Delete Button */}
+                          <Button
+                            onClick={() => setEventToDelete(event.eventId)}
+                            className="bg-red-500 hover:bg-red-600 text-white p-2 flex items-center"
+                          >
+                            <Trash className="w-4 h-4" />
+                            <span className="hidden md:inline ml-2">Delete</span>
+                          </Button>
+                        </div>
+                      </div>
+
+                      {/* Event Details */}
+                      <div>
                         <p><strong>Case Title:</strong> {event.caseTitle}</p>
                         <p><strong>Party Name:</strong> {event.partyName}</p>
                         <p><strong>Event Type:</strong> {event.eventType}</p>
@@ -392,20 +467,6 @@ ${updatedEvent.id}`, {
                         <p>
                           <strong>Date:</strong> {event.eventDate} | <strong>Time:</strong> {event.eventTime}
                         </p>
-                      </div>
-                      <div className="flex space-x-2">
-                        <Button
-                          onClick={() => handleEditEvent(event)}
-                          className="bg-blue-500 hover:bg-yellow-600 text-white"
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          onClick={() => setEventToDelete(event.eventId)}
-                          className="bg-red-500 hover:bg-red-600 text-white"
-                        >
-                          Delete
-                        </Button>
                       </div>
                     </li>
                   ))

@@ -7,7 +7,6 @@ import Link from "next/link";
 import AddNewEventModal from "@/components/AddNewEvent";
 import ConfirmDialog from "@/components/ConfirmDialog";
 
-
 // UI Components
 import {
   Card,
@@ -19,6 +18,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, Star, StarOff, Search } from "lucide-react";
+import { toast } from "sonner"; // For notifications
 
 export default function Dashboard() {
   // State Variables
@@ -47,7 +47,6 @@ export default function Dashboard() {
   const [isAddEventModalOpen, setIsAddEventModalOpen] = useState(false); // Modal state
   const [editingEvent, setEditingEvent] = useState<any | null>(null);
   const [eventToDelete, setEventToDelete] = useState<string | null>(null);
-
 
   // Fetch user details
   useEffect(() => {
@@ -102,7 +101,7 @@ export default function Dashboard() {
   const fetchEvents = async (date: Date) => {
     try {
       const formattedDate = date.toISOString(); 
-      const response = await fetch(`https://dummy-backend-15jt.onrender.com/dashboard/events?date=${formattedDate}`);
+      const response = await fetch(`https://dashboardservice-production.up.railway.app/api/getEvents/?lawyerId=12345&eventDate=${formattedDate}`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -111,6 +110,7 @@ export default function Dashboard() {
       setEvents(data); 
     } catch (error) {
       console.error("Error fetching events:", error);
+      toast.error("Failed to fetch events. Please try again.");
     }
   };
 
@@ -122,7 +122,7 @@ export default function Dashboard() {
 
   const handleAddEvent = async (eventData: any) => {
     try {
-      const response = await fetch(`https://dummy-backend-15jt.onrender.com/dashboard/events`, {
+      const response = await fetch(`https://dashboardservice-production.up.railway.app/post/createEvent`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -137,13 +137,14 @@ export default function Dashboard() {
       const newEvent = await response.json();
       setEvents((prevEvents) => [...prevEvents, newEvent]);
       setIsAddEventModalOpen(false);
+      toast.success("Event added successfully!");
     } catch (error) {
       console.error("Error adding new event:", error);
+      toast.error("Failed to add event. Please try again.");
     }
   };
 
   const handleDeleteEvent = async () => {
-    // const confirmed = confirm("Are you sure you want to delete this event?");
     if (!eventToDelete) return;
 
     try {
@@ -156,8 +157,12 @@ export default function Dashboard() {
       }
 
       setEvents((prevEvents) => prevEvents.filter((event) => event.id !== eventToDelete));
+      toast.success("Event deleted successfully!");
     } catch (error) {
       console.error("Error deleting event:", error);
+      toast.error("Failed to delete event. Please try again.");
+    } finally {
+      setEventToDelete(null);
     }
   };
 
@@ -167,7 +172,7 @@ export default function Dashboard() {
 
   const handleUpdateEvent = async (updatedEvent: any) => {
     try {
-      const response = await fetch(`https://dummy-backend-15jt.onrender.com/dashboard/events/${updatedEvent.Id}`, {
+      const response = await fetch(`https://dummy-backend-15jt.onrender.com/dashboard/events/${updatedEvent.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -186,8 +191,10 @@ export default function Dashboard() {
         )
       );
       setEditingEvent(null);
+      toast.success("Event updated successfully!");
     } catch (error) {
       console.error("Error updating event:", error);
+      toast.error("Failed to update event. Please try again.");
     }
   };
 
@@ -295,10 +302,10 @@ export default function Dashboard() {
               <button
                 className="text-blue-600 mt-2 underline"
                 onClick={() => setShowCount(showCount + 5)}
-              >
-                Show More
-              </button>
-            )}
+                >
+                  Show More
+                </button>
+              )}
           </>
         );
       default:
@@ -339,12 +346,11 @@ export default function Dashboard() {
                   Events on {selectedDate ? format(selectedDate, "PPP") : "Select a date"}
                 </h3>
                 <Button
-            onClick={() => setIsAddEventModalOpen(true)}
-            className="flex items-center px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md"
-          >
-            {/* <PlusCircle className="mr-2 h-5 w-5" /> */}
-            Add Event
-          </Button>
+                  onClick={() => setIsAddEventModalOpen(true)}
+                  className="flex items-center px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md"
+                >
+                  Add Event
+                </Button>
               </div>
               <ul className="space-y-3">
                 {events.length > 0 ? (
@@ -354,7 +360,7 @@ export default function Dashboard() {
                       className="flex justify-between items-center p-4 bg-gray-100 rounded-lg shadow-sm"
                     >
                       <div>
-                        <p className="font-bold">Title:Client Meeting/Court Hearing related to case ID: {event.title}</p>
+                        <p className="font-bold">Title: {event.title}</p>
                         <p><strong>Client Name:</strong> {event.clientName || "N/A"}</p>
                         <p><strong>Description:</strong> {event.description}</p>
                         <p><strong>Location:</strong> {event.location || "N/A"}</p>
@@ -385,7 +391,6 @@ export default function Dashboard() {
                   <li className="text-gray-500">No events for this date.</li>
                 )}
               </ul>
-
             </div>
           </div>
         </CardContent>
@@ -529,17 +534,16 @@ export default function Dashboard() {
         </CardContent>
       </Card>
 
+      {/* Edit Event Modal */}
+      {editingEvent && (
+        <AddNewEventModal
+          existingEvent={editingEvent}
+          onClose={() => setEditingEvent(null)}
+          onAddEvent={handleUpdateEvent}
+        />
+      )}
 
-            {/* Edit Event Modal */}
-                  {editingEvent && (
-                    <AddNewEventModal
-                      existingEvent={editingEvent}
-                      onClose={() => setEditingEvent(null)}
-                      onAddEvent={handleUpdateEvent}
-                    />
-                  )}
-
-                  {/* Confirm Delete Dialog */}
+      {/* Confirm Delete Dialog */}
       {eventToDelete && (
         <ConfirmDialog
           message="Are you sure you want to delete this event?"
@@ -553,9 +557,8 @@ export default function Dashboard() {
         <AddNewEventModal
           onClose={() => setIsAddEventModalOpen(false)}
           onAddEvent={handleAddEvent}
-          />
+        />
       )}
     </div>
-
-);
+  );
 }

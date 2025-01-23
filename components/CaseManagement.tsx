@@ -96,11 +96,11 @@ export default function CaseManagement({ onCaseSelect }: CaseManagementProps) {
         <Toaster position="top-right" reverseOrder={false} />
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-gray-800">
-            Case Management
+          Manage your legal cases
           </CardTitle>
-          <CardDescription className="text-gray-600">
-            Manage your legal cases
-          </CardDescription>
+          {/* <CardDescription className="text-gray-600">
+            
+          </CardDescription> */}
         </CardHeader>
         <CardContent>
           {/* Search Bar */}

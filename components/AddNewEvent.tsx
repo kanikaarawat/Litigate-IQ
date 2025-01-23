@@ -55,7 +55,7 @@ export default function AddNewEventModal({ onClose, onAddEvent, onEditEvent, exi
     };
 
     try {
-      const response = await fetch("https://dashboardservice-production.up.railway.app/post/createEvent", {
+      const response = await fetch("https://dashboardservice-bg5v.onrender.com/post/createEvent", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

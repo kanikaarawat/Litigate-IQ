@@ -31,6 +31,25 @@ export default function UnifiedDashboardComponent() {
     setIsAuthenticated(true); // Log the user out
   };
 
+  const getPageTitle = () => {
+    switch (activeSection) {
+      case "dashboard":
+        return "Dashboard";
+      case "case-management":
+        return "Case Management";
+      case "case-detail":
+        return "Case Detail";
+      case "legal-research":
+        return "Legal Research";
+      case "communication":
+        return "Communication";
+      case "settings":
+        return "Settings";
+      default:
+        return "Welcome to the Dashboard";
+    }
+  };
+
   const renderContent = () => {
     console.log("Rendering section:", activeSection); // ✅ Log active section
 
@@ -186,6 +205,8 @@ export default function UnifiedDashboardComponent() {
 
         {/* Main Content Area */}
         <main className="flex-1 overflow-y-auto p-4 sm:p-8 bg-gray-100">
+          {/* Page Title */}
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">{getPageTitle()}</h2>
           {renderContent()}
         </main>
       </div>

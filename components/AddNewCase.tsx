@@ -92,7 +92,7 @@ export default function AddNewCaseModal({ onClose, onAddCase }: AddNewCaseModalP
   console.log("Sending request with payload:", JSON.stringify(newCase, null, 2)); // Log before sending
 
     try {
-      const response = await fetch(`https://dummy-backend-15jt.onrender.com/post/new/case`,{
+      const response = await fetch(`https://cms-production-3675.up.railway.app/post/new/case`,{
         method: "POST",
         headers: {
           "Content-Type": "application/json",

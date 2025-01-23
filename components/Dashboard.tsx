@@ -1,31 +1,25 @@
 "use client";
 import { useState, useEffect } from "react";
-import { format, isSameDay } from "date-fns";
+import { format } from "date-fns";
 import { UserCircleIcon } from "@heroicons/react/24/solid";
-import Link from "next/link";
 import AddNewEventModal from "@/components/AddNewEvent";
 import ConfirmDialog from "@/components/ConfirmDialog";
 
 // UI Components
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Star, StarOff, Search, Edit, Trash } from "lucide-react"; // Added Edit and Trash icons
-import { toast } from "sonner"; // For notifications
+import { PlusCircle, Edit, Trash } from "lucide-react";
+import { toast } from "sonner";
 
 export default function Dashboard() {
   // State Variables
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
-  const [lawyerName, setLawyerName] = useState("John Doe"); // Dynamic lawyer name
-  const [events, setEvents] = useState<any[]>([]); // Events fetched from API
-  const [notifications, setNotifications] = useState<any[]>([]); // Notifications
-  const [deadlines, setDeadlines] = useState<any[]>([]); // Upcoming deadlines
+  const [lawyerName, setLawyerName] = useState("John Doe");
+  const [events, setEvents] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [deadlines, setDeadlines] = useState<any[]>([]);
   const [stats, setStats] = useState({
     totalCases: 0,
     totalCasesChange: 0,
@@ -42,10 +36,11 @@ export default function Dashboard() {
     upcomingDeadlineDetails: [],
   });
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
-  const [showCount, setShowCount] = useState(5); // Manage "Show More" count
-  const [isAddEventModalOpen, setIsAddEventModalOpen] = useState(false); // Modal state
+  const [showCount, setShowCount] = useState(5);
+  const [isAddEventModalOpen, setIsAddEventModalOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<any | null>(null);
   const [eventToDelete, setEventToDelete] = useState<string | null>(null);
+  const [lawyerId, setLawyerId] = useState<string>("12345"); // Default lawyerId
 
   // Fetch user details
   useEffect(() => {
@@ -57,22 +52,40 @@ export default function Dashboard() {
         }
         const data = await response.json();
         setLawyerName(data.name || lawyerName);
+        setLawyerId(data.lawyerId || "12345"); // Set lawyerId dynamically
       } catch (error) {
         console.error("Error fetching user details:", error);
         setLawyerName("Guest");
+        setLawyerId("12345"); // Fallback to default lawyerId
       }
     };
 
     const fetchStats = async () => {
       try {
-        const response = await fetch(`https://dummy-backend-15jt.onrender.com/dashboard/stats`);
+        const response = await fetch(
+          `https://dashboardservice-bg5v.onrender.com/count/countCases?lawyerId=${lawyerId}`
+        );
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        setStats(data);
 
-        // Set deadlines from the response
+        setStats({
+          totalCases: data.totalCases,
+          totalCasesChange: 0,
+          pendingCases: data.pendingCases,
+          pendingCasesChange: 0,
+          overduePendingCasesCount: data.overdueCases,
+          resolvedCases: data.resolvedCases,
+          resolvedCasesChange: 0,
+          upcomingDeadlines: data.upcomingDeadlines,
+          totalCasesDetails: [],
+          pendingCasesDetails: [],
+          overduePendingCasesDetails: [],
+          resolvedCasesDetails: [],
+          upcomingDeadlineDetails: [],
+        });
+
         if (data.upcomingDeadlineDetails) {
           setDeadlines(data.upcomingDeadlineDetails);
         }
@@ -94,32 +107,33 @@ export default function Dashboard() {
     fetchUser();
     fetchStats();
     fetchNotifications();
-  }, []);
+  }, [lawyerId]);
 
   // Fetch events dynamically based on the selected date
   const fetchEvents = async (date: Date) => {
     try {
-      const formattedDate = selectedDate; 
-      console.log(selectedDate)
-      const response = await fetch(`https://dashboardservice-bg5v.onrender.com/api/getEvents/?lawyerId=12345&eventDate=${formattedDate}`);
+      const formattedDate = selectedDate;
+      console.log(selectedDate);
+      const response = await fetch(
+        `https://dashboardservice-bg5v.onrender.com/api/getEvents/?lawyerId=${lawyerId}&eventDate=${formattedDate}`
+      );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
       console.log("Events data fetched:", data);
-  
-      // Extract events from the nested response
+
       const casesWithEvents = data.message.casesWithEventsAndParties || [];
-      const eventsArray = casesWithEvents.flatMap((caseData: any) => 
+      const eventsArray = casesWithEvents.flatMap((caseData: any) =>
         caseData.events.map((event: any) => ({
           ...event,
-          caseId: caseData.caseId, // Include caseId in the event object
-          caseTitle: caseData.caseTitle, // Include caseTitle in the event object
-          partyName: caseData.partyName, // Include partyName in the event object
+          caseId: caseData.caseId,
+          caseTitle: caseData.caseTitle,
+          partyName: caseData.partyName,
         }))
       );
-  
-      setEvents(eventsArray); 
+
+      setEvents(eventsArray);
       console.log("Updated Events State:", eventsArray);
     } catch (error) {
       console.error("Error fetching events:", error);
@@ -129,10 +143,11 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (selectedDate) {
-      fetchEvents(selectedDate); // Fetch events for the selected date
+      fetchEvents(selectedDate);
     }
-  }, [selectedDate]);
+  }, [selectedDate, lawyerId]);
 
+  // Add Event Handler
   const handleAddEvent = async (eventData: any) => {
     try {
       const response = await fetch(`https://dashboardservice-bg5v.onrender.com/post/createEvent`, {
@@ -140,7 +155,7 @@ export default function Dashboard() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(eventData),
+        body: JSON.stringify({ ...eventData, lawyerId }),
       });
 
       if (!response.ok) {
@@ -157,27 +172,26 @@ export default function Dashboard() {
     }
   };
 
+  // Delete Event Handler
   const handleDeleteEvent = async () => {
     if (!eventToDelete) {
       toast.error("Event ID is missing.");
       return;
     }
-  console.log(eventToDelete)
+
     try {
-      const lawyerId = "12345"; // Replace with dynamic lawyerId if available
-      const caseId = "782truiqg"; // Replace with dynamic caseId if available
+      const caseId = events.find((event) => event.eventId === eventToDelete)?.caseId || "defaultCaseId";
       const response = await fetch(
         `https://dashboardservice-bg5v.onrender.com/delete/deleteEvent?lawyerId=${lawyerId}&caseId=${caseId}&eventId=${eventToDelete}`,
         {
           method: "DELETE",
         }
       );
-  
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-  
-      // Remove the deleted event from the state
+
       setEvents((prevEvents) => prevEvents.filter((event) => event.eventId !== eventToDelete));
       toast.success("Event deleted successfully!");
     } catch (error) {
@@ -187,19 +201,21 @@ export default function Dashboard() {
       setEventToDelete(null);
     }
   };
+
+  // Edit Event Handler
   const handleEditEvent = (event: any) => {
     setEditingEvent(event);
   };
 
+  // Update Event Handler
   const handleUpdateEvent = async (updatedEvent: any) => {
     try {
-      const response = await fetch(`https://dashboardservice-bg5v.onrender.com/put/updateEvent
-${updatedEvent.id}`, {
+      const response = await fetch(`https://dashboardservice-bg5v.onrender.com/put/updateEvent`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(updatedEvent),
+        body: JSON.stringify({ ...updatedEvent, lawyerId }),
       });
 
       if (!response.ok) {
@@ -220,6 +236,7 @@ ${updatedEvent.id}`, {
     }
   };
 
+  // Get Card Title
   const getCardTitle = (card: string) => {
     switch (card) {
       case "total-cases":
@@ -235,11 +252,13 @@ ${updatedEvent.id}`, {
     }
   };
 
+  // Get Sample Data for Cards
   const getSampleData = (card: string) => {
     const casesToShow = (cases: any[]) =>
       cases.slice(0, showCount).map((caseItem, index) => (
-        <li key={index}>
-          <span className="font-semibold">Case #{caseItem.caseId}</span>: {caseItem.title}
+        <li key={index} className="mb-2">
+          <span className="font-semibold text-blue-600">Case #{caseItem.caseId}</span>:{" "}
+          <span className="text-gray-700">{caseItem.title}</span>
         </li>
       ));
 
@@ -254,15 +273,14 @@ ${updatedEvent.id}`, {
                 <p className="text-gray-500">No total cases found.</p>
               )}
             </ul>
-            {stats.totalCasesDetails &&
-              stats.totalCasesDetails.length > showCount && (
-                <button
-                  className="text-blue-600 mt-2 underline"
-                  onClick={() => setShowCount(showCount + 5)}
-                >
-                  Show More
-                </button>
-              )}
+            {stats.totalCasesDetails && stats.totalCasesDetails.length > showCount && (
+              <button
+                className="text-blue-600 mt-2 underline hover:text-blue-700 transition-colors"
+                onClick={() => setShowCount(showCount + 5)}
+              >
+                Show More
+              </button>
+            )}
           </>
         );
       case "pending-cases":
@@ -278,15 +296,14 @@ ${updatedEvent.id}`, {
             <p className="text-sm text-red-500 mt-2">
               Overdue Pending Cases: {stats.overduePendingCasesCount}
             </p>
-            {stats.pendingCasesDetails &&
-              stats.pendingCasesDetails.length > showCount && (
-                <button
-                  className="text-blue-600 mt-2 underline"
-                  onClick={() => setShowCount(showCount + 5)}
-                >
-                  Show More
-                </button>
-              )}
+            {stats.pendingCasesDetails && stats.pendingCasesDetails.length > showCount && (
+              <button
+                className="text-blue-600 mt-2 underline hover:text-blue-700 transition-colors"
+                onClick={() => setShowCount(showCount + 5)}
+              >
+                Show More
+              </button>
+            )}
           </>
         );
       case "resolved-cases":
@@ -299,15 +316,14 @@ ${updatedEvent.id}`, {
                 <p className="text-gray-500">No resolved cases found.</p>
               )}
             </ul>
-            {stats.resolvedCasesDetails &&
-              stats.resolvedCasesDetails.length > showCount && (
-                <button
-                  className="text-blue-600 mt-2 underline"
-                  onClick={() => setShowCount(showCount + 5)}
-                >
-                  Show More
-                </button>
-              )}
+            {stats.resolvedCasesDetails && stats.resolvedCasesDetails.length > showCount && (
+              <button
+                className="text-blue-600 mt-2 underline hover:text-blue-700 transition-colors"
+                onClick={() => setShowCount(showCount + 5)}
+              >
+                Show More
+              </button>
+            )}
           </>
         );
       case "upcoming-deadlines":
@@ -322,12 +338,12 @@ ${updatedEvent.id}`, {
             </ul>
             {deadlines.length > showCount && (
               <button
-                className="text-blue-600 mt-2 underline"
+                className="text-blue-600 mt-2 underline hover:text-blue-700 transition-colors"
                 onClick={() => setShowCount(showCount + 5)}
-                >
-                  Show More
-                </button>
-              )}
+              >
+                Show More
+              </button>
+            )}
           </>
         );
       default:
@@ -336,25 +352,25 @@ ${updatedEvent.id}`, {
   };
 
   return (
-    <div className="space-y-8 p-2 bg-white min-h-screen rounded-2xl">
+    <div className="space-y-8 p-6 bg-white min-h-screen">
       {/* Welcome Section */}
       <div className="flex items-center space-x-4">
         <UserCircleIcon className="w-16 h-16 text-blue-600" />
-        <h1 className="text-3xl my-5 font-bold text-gray-800">
-          Welcome, {lawyerName}!
+        <h1 className="text-4xl font-bold text-gray-800">
+          Welcome, <span className="text-blue-600">{lawyerName}</span>!
         </h1>
       </div>
 
       {/* Calendar Section */}
       <Card className="shadow-xl border-0">
         <CardHeader>
-          <CardTitle className="text-2xl text-gray-800">
+          <CardTitle className="text-2xl font-semibold text-gray-800">
             Appointments and Deadlines
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white rounded-lg mx-0 xl:mx-5   shadow-md">
+            <div className="bg-white rounded-lg shadow-md">
               <Calendar
                 mode="single"
                 selected={selectedDate}
@@ -375,44 +391,54 @@ ${updatedEvent.id}`, {
                   <span className="hidden md:inline">Add Event</span>
                 </Button>
               </div>
-              <ul className="space-y-3">
+              <ScrollArea className="max-h-[500px] overflow-y-auto">
                 {events.length > 0 ? (
                   events.map((event) => (
-                    <li
+                    <div
                       key={event.eventId}
-                      className="flex flex-col md:flex-row justify-between items-start md:items-center p-4 bg-gray-100 rounded-lg shadow-sm"
+                      className="p-4 mb-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-200"
                     >
-                      <div>
-                        <div className="flex items-center space-x-2">
-                          <p className="font-bold">Case ID: {event.caseId}</p>
-                          <Button
-                            onClick={() => handleEditEvent(event)}
-                            className="bg-blue-500 hover:bg-yellow-600 text-white p-2"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            onClick={() => setEventToDelete(event.eventId)}
-                            className="bg-red-500 hover:bg-red-600 text-white p-2"
-                          >
-                            <Trash className="w-4 h-4" />
-                          </Button>
+                      <div className="flex justify-between items-start">
+                        <div className="space-y-2">
+                          <div className="flex items-center space-x-2">
+                            <p className="font-bold text-gray-800">Case ID: {event.caseId}</p>
+                            <Button
+                              onClick={() => handleEditEvent(event)}
+                              className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-full"
+                            >
+                              <Edit className="w-4 h-4" />
+                              <span className="hidden md:inline ml-2">Edit</span>
+                            </Button>
+                            <Button
+                              onClick={() => setEventToDelete(event.eventId)}
+                              className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-full"
+                            >
+                              <Trash className="w-4 h-4" />
+                              <span className="hidden md:inline ml-2">Delete</span>
+                            </Button>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            <div>
+                              <p className="text-sm text-gray-600"><strong>Case Title:</strong> {event.caseTitle}</p>
+                              <p className="text-sm text-gray-600"><strong>Party Name:</strong> {event.partyName}</p>
+                              <p className="text-sm text-gray-600"><strong>Event Type:</strong> {event.eventType}</p>
+                            </div>
+                            <div>
+                              <p className="text-sm text-gray-600"><strong>Description:</strong> {event.eventDesc}</p>
+                              <p className="text-sm text-gray-600"><strong>Location:</strong> {event.eventLocation}</p>
+                              <p className="text-sm text-gray-600">
+                                <strong>Date & Time:</strong> {event.eventDate} at {event.eventTime}
+                              </p>
+                            </div>
+                          </div>
                         </div>
-                        <p><strong>Case Title:</strong> {event.caseTitle}</p>
-                        <p><strong>Party Name:</strong> {event.partyName}</p>
-                        <p><strong>Event Type:</strong> {event.eventType}</p>
-                        <p><strong>Description:</strong> {event.eventDesc}</p>
-                        <p><strong>Location:</strong> {event.eventLocation}</p>
-                        <p><strong>Lawyer ID:</strong> {event.lawyerId}</p>
-                        <p><strong>Date:</strong> {event.eventDate} </p>
-                        <p><strong>Time:</strong> {event.eventTime}</p>
                       </div>
-                    </li>
+                    </div>
                   ))
                 ) : (
-                  <li className="text-gray-500">No events for this date.</li>
+                  <p className="text-gray-500 text-center py-4">No events for this date.</p>
                 )}
-              </ul>
+              </ScrollArea>
             </div>
           </div>
         </CardContent>
@@ -420,105 +446,36 @@ ${updatedEvent.id}`, {
 
       {/* Summary Cards */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <Card
-          onClick={() =>
-            setSelectedCard(selectedCard === "total-cases" ? null : "total-cases")
-          }
-          className={`shadow-md transition-transform hover:scale-105 bg-white cursor-pointer ${
-            selectedCard === "total-cases" ? "border-blue-600 border-2" : ""
-          }`}
-        >
-          <CardHeader>
-            <CardTitle className="text-sm font-medium text-gray-700">
-              Total Cases
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-4xl font-extrabold text-blue-600">
-              {stats.totalCases}
-            </div>
-            <p className="text-sm text-gray-500 mt-2">
-              <span className="text-green-600 font-semibold">
-                +{stats.totalCasesChange}
-              </span>{" "}
-              from last month
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card
-          onClick={() =>
-            setSelectedCard(selectedCard === "pending-cases" ? null : "pending-cases")
-          }
-          className={`shadow-md transition-transform hover:scale-105 bg-white cursor-pointer ${
-            selectedCard === "pending-cases" ? "border-yellow-600 border-2" : ""
-          }`}
-        >
-          <CardHeader>
-            <CardTitle className="text-sm font-medium text-gray-700">
-              Pending Cases
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-4xl font-extrabold text-yellow-600">
-              {stats.pendingCases}
-            </div>
-            <p className="text-sm text-gray-500 mt-2">
-              <span className="text-red-600 font-semibold">
-                Overdue: {stats.overduePendingCasesCount}
-              </span>
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card
-          onClick={() =>
-            setSelectedCard(selectedCard === "resolved-cases" ? null : "resolved-cases")
-          }
-          className={`shadow-md transition-transform hover:scale-105 bg-white cursor-pointer ${
-            selectedCard === "resolved-cases" ? "border-green-600 border-2" : ""
-          }`}
-        >
-          <CardHeader>
-            <CardTitle className="text-sm font-medium text-gray-700">
-              Resolved Cases
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-4xl font-extrabold text-green-600">
-              {stats.resolvedCases}
-            </div>
-            <p className="text-sm text-gray-500 mt-2">
-              <span className="text-green-600 font-semibold">
-                +{stats.resolvedCasesChange}
-              </span>{" "}
-              from last month
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card
-          onClick={() =>
-            setSelectedCard(
-              selectedCard === "upcoming-deadlines" ? null : "upcoming-deadlines"
-            )
-          }
-          className={`shadow-md transition-transform hover:scale-105 bg-white cursor-pointer ${
-            selectedCard === "upcoming-deadlines" ? "border-red-600 border-2" : ""
-          }`}
-        >
-          <CardHeader>
-            <CardTitle className="text-sm font-medium text-gray-700">
-              Upcoming Deadlines
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-4xl font-extrabold text-red-600">
-              {stats.upcomingDeadlines}
-            </div>
-            <p className="text-sm text-gray-500">Within next 7 days</p>
-          </CardContent>
-        </Card>
+        {[
+          { id: "total-cases", title: "Total Cases", value: stats.totalCases, color: "blue" },
+          { id: "pending-cases", title: "Pending Cases", value: stats.pendingCases, color: "yellow" },
+          { id: "resolved-cases", title: "Resolved Cases", value: stats.resolvedCases, color: "green" },
+          { id: "upcoming-deadlines", title: "Upcoming Deadlines", value: stats.upcomingDeadlines, color: "red" },
+        ].map((stat) => (
+          <Card
+            key={stat.id}
+            className={`shadow-md transition-transform hover:scale-105 bg-white cursor-pointer ${
+              selectedCard === stat.id ? `ring-2 ring-${stat.color}-500` : ""
+            }`}
+            onClick={() => setSelectedCard(selectedCard === stat.id ? null : stat.id)}
+          >
+            <CardHeader>
+              <CardTitle className="text-sm font-medium text-gray-700">
+                {stat.title}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className={`text-4xl font-extrabold text-${stat.color}-600`}>
+                {stat.value}
+              </div>
+              {stat.id === "pending-cases" && (
+                <p className="text-sm text-red-500 mt-2">
+                  Overdue: {stats.overduePendingCasesCount}
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
       {/* Sample Data Display */}
@@ -556,7 +513,13 @@ ${updatedEvent.id}`, {
         </CardContent>
       </Card>
 
-      {/* Edit Event Modal */}
+      {/* Modals */}
+      {isAddEventModalOpen && (
+        <AddNewEventModal
+          onClose={() => setIsAddEventModalOpen(false)}
+          onAddEvent={handleAddEvent}
+        />
+      )}
       {editingEvent && (
         <AddNewEventModal
           existingEvent={editingEvent}
@@ -564,21 +527,11 @@ ${updatedEvent.id}`, {
           onAddEvent={handleUpdateEvent}
         />
       )}
-
-      {/* Confirm Delete Dialog */}
       {eventToDelete && (
         <ConfirmDialog
           message="Are you sure you want to delete this event?"
           onConfirm={handleDeleteEvent}
           onCancel={() => setEventToDelete(null)}
-        />
-      )}
-
-      {/* Add Event Modal */}
-      {isAddEventModalOpen && (
-        <AddNewEventModal
-          onClose={() => setIsAddEventModalOpen(false)}
-          onAddEvent={handleAddEvent}
         />
       )}
     </div>

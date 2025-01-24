@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 # Litigate IQ Frontend (Updated Version)
 
 Welcome to the **Updated Litigate IQ Frontend** repository! This project is built using **Next.js** and is deployed on **Vercel**.
@@ -100,5 +100,6 @@ If you'd like to contribute:
 This project is licensed under the **MIT License**.
 
 ---
-**Maintained by [Aadityavv](https://github.com/Aadityavv)**
+**Maintained by [Aadityavv](https://github.com/Aadityavv) and [KanikaaRawat](https://github.com/kanikaarawat)**
+
 

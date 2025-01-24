@@ -1,5 +1,5 @@
 
-# Litigate IQ Frontend (Updated Version)
+# Litigate IQ Frontend 
 
 Welcome to the **Updated Litigate IQ Frontend** repository! This project is built using **Next.js** and is deployed on **Vercel**.
 =======

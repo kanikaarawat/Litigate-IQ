@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { CalendarDays, FileText, MessageSquare } from "lucide-react";
+import { postNewNote } from "@/lib/api/cases";
 
 interface Message {
   id: string;
@@ -50,17 +51,39 @@ export default function CommunicationModule() {
   const [notes, setNotes] = useState<Note[]>([]);
   const [newTask, setNewTask] = useState("");
   const [newNote, setNewNote] = useState("");
+  const [lawyerName, setLawyerName] = useState("Guest");
+  const [lawyerId, setLawyerId] = useState("12345");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const fetchUser = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch(`https://dummy-backend-15jt.onrender.com/user`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        setLawyerName(data.name || "Guest");
+        setLawyerId(data.lawyerId || "12345");
+      } catch (error) {
+        console.error("Error fetching user details:", error);
+        setLawyerName("Guest");
+        setLawyerId("12345");
+      } finally {
+        setLoading(false);
+      }
+    };
+
     const fetchData = async () => {
       try {
+        setLoading(true);
         const [personalRes, groupRes, tasksRes, filesRes, notesRes] = await Promise.all([
-          fetch(`https://dummy-backend-15jt.onrender.com/communication/conversations/personal`),
-          fetch(`https://dummy-backend-15jt.onrender.com/communication/conversations/group`),
-          fetch(`https://dummy-backend-15jt.onrender.com/communication/tasks`),
-          fetch(`https://dummy-backend-15jt.onrender.com/communication/files`),
-          fetch(`https://dummy-backend-15jt.onrender.com/communication/notes`),
-
+          fetch(`https://cms-production-3675.up.railway.app/communication/conversations/personal`),
+          fetch(`https://cms-production-3675.up.railway.app/communication/conversations/group`),
+          fetch(`https://cms-production-3675.up.railway.app/communication/tasks`),
+          fetch(`https://cms-production-3675.up.railway.app/communication/files`),
+          fetch(`https://cms-production-3675.up.railway.app/communication/notes`),
         ]);
 
         setMessages((await personalRes.json()) || []);
@@ -70,19 +93,24 @@ export default function CommunicationModule() {
         setNotes((await notesRes.json()) || []);
       } catch (error) {
         console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
+    fetchUser();
     fetchData();
   }, []);
 
   const handleSendMessage = async () => {
-    if (newMessage.trim() === "") return;
+    if (!newMessage.trim()) {
+      alert("Please enter a message");
+      return;
+    }
 
-    const endpoint =
-      activeTab === "personal"
-        ? "/api/communication/conversations/personal"
-        : "/api/communication/conversations/group";
+    const endpoint = activeTab === "personal"
+      ? "/api/communication/conversations/personal"
+      : "/api/communication/conversations/group";
 
     try {
       const response = await fetch(endpoint, {
@@ -99,14 +127,17 @@ export default function CommunicationModule() {
         setGroupMessages((prev) => [...prev, newMsg]);
       }
 
-      setNewMessage("");
+      setNewMessage(""); // Clear input after sending
     } catch (error) {
       console.error("Error sending message:", error);
     }
   };
 
   const handleAddTask = async () => {
-    if (newTask.trim() === "") return;
+    if (!newTask.trim()) {
+      alert("Please enter a task");
+      return;
+    }
 
     try {
       const response = await fetch("/api/communication/tasks", {
@@ -117,32 +148,38 @@ export default function CommunicationModule() {
 
       const newTaskItem = await response.json();
       setTasks((prev) => [...prev, newTaskItem]);
-      setNewTask("");
+      setNewTask(""); // Clear input after adding task
     } catch (error) {
       console.error("Error adding task:", error);
     }
   };
 
   const handleAddNote = async () => {
-    if (newNote.trim() === "") return;
+    if (!newNote.trim()) {
+      alert("Please enter a note");
+      return;
+    }
 
     try {
-      const response = await fetch("/api/communication/notes", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: newNote }),
-      });
+      const response = await postNewNote("78901", "C87654", newNote, "12-2-2024");
 
-      const newNoteItem = await response.json();
+      const newNoteItem: Note = {
+        id: response.caseId,
+        content: response.note,
+        author: lawyerName, // Use lawyerName here for the author
+      };
+
       setNotes((prev) => [...prev, newNoteItem]);
-      setNewNote("");
+      setNewNote(""); // Clear input after adding note
     } catch (error) {
       console.error("Error adding note:", error);
     }
   };
 
   return (
-    <div className="space-y-6 p-0 sm:p-6 bg-gray-0">
+    <div className="space-y-6 p-4 sm:p-6 bg-gray-50">
+      {loading && <div className="text-center">Loading...</div>} {/* Show loading */}
+      
       {/* Communication Module */}
       <Card className="shadow-lg">
         <CardHeader>
@@ -269,9 +306,10 @@ export default function CommunicationModule() {
               <p className="text-sm text-gray-500">No notes to display.</p>
             )}
           </ScrollArea>
+
           <div className="flex items-center space-x-2">
             <Textarea
-              placeholder="Add a new note"
+              placeholder="Add a note..."
               value={newNote}
               onChange={(e) => setNewNote(e.target.value)}
               className="flex-1 resize-none"

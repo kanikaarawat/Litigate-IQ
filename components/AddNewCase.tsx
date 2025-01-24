@@ -30,6 +30,7 @@ export default function AddNewCaseModal({ onClose, onAddCase }: AddNewCaseModalP
   const [caseDesc, setCaseDesc] = useState("");
   const [notes, setNotes] = useState("");
   const [partyRole, setPartyRole] = useState("Organization");
+  const [file, setFile] = useState<File | null>(null);
 
   const validateForm = () => {
     if (!caseTitle) {
@@ -68,53 +69,61 @@ export default function AddNewCaseModal({ onClose, onAddCase }: AddNewCaseModalP
 
     if (!validateForm()) return;
 
-    const newCase = {
-      lawyerId,
-      lawyerName,
-      caseId,
-      caseTitle,
-      caseDesc,
-      dateOfFile,
-      courtName,
-      judgeAssigned,
-      sectionOrAct,
-      status,
-      bookmark: false, // Default value as per API response
-      partyName,
-      partyType: "Organization", // Ensure this value is sent
-      partyRole,
-      contact: partyContact, // Ensure correct field names
-      address: partyAddress,
-      documentType: "Contracts", // Sample default, should be dynamic
-      documentDesc: notes, // Mapping notes to documentDesc
-    };
+    // Prepare form data
+    const formData = new FormData();
 
-  console.log("Sending request with payload:", JSON.stringify(newCase, null, 2)); // Log before sending
+    // Append all form data
+    formData.append("caseId", caseId);
+    formData.append("caseTitle", caseTitle);
+    formData.append("caseDesc", caseDesc);
+    formData.append("status", status);
+    formData.append("partyName", partyName);
+    formData.append("partyType", "Organization");
+    formData.append("partyRole", partyRole);
+    formData.append("contact", partyContact);
+    formData.append("address", partyAddress);
+    formData.append("documentType", "Evidence"); // Static document type as per your API
+    formData.append("documentDesc", notes); // Document description mapping
+
+    // Get the file input element and append the selected file
+    const fileInput = document.getElementById("documents") as HTMLInputElement;
+    const file = fileInput?.files?.[0];
+    if (file) {
+        formData.append("documentFileData", file);
+    }
+
+    // Append additional fields
+    formData.append("lawyerId", lawyerId);
+    formData.append("lawyerName", lawyerName);
+    formData.append("judgeAssigned", judgeAssigned);
+    formData.append("sectionOrAct", sectionOrAct);
+    formData.append("courtName", courtName);
+    formData.append("dateOfFile", dateOfFile);
+
+    console.log("Sending request with payload:", formData); // Log before sending
 
     try {
-      const response = await fetch(`https://cms-production-3675.up.railway.app/post/new/case`,{
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(newCase),
-      });
+        const response = await fetch("https://dummy-backend-15jt.onrender.com/post/new/evidence", {
+            method: "POST",
+            body: formData, // Send the FormData as the body of the request
+        });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error: ${response.status}`);
-      }
+        if (!response.ok) {
+            throw new Error(`HTTP error: ${response.status}`);
+        }
 
-      const result = await response.json();
-      console.log("Case added successfully:", result);
-      alert("Case added successfully!");
+        const result = await response.json();
+        console.log("Case added successfully:", result);
+        alert("Case added successfully!");
 
-      onAddCase(result.case); // Notify the parent component with the new case
-      onClose(); // Close the modal
+        onAddCase(result.case); // Notify the parent component with the new case
+        onClose(); // Close the modal
     } catch (error) {
-      console.error("Error adding case:", error);
-      alert("Failed to add case. Please try again.");
+        console.error("Error adding case:", error);
+        alert("Failed to add case. Please try again.");
     }
-  };
+};
+
 
   return (
     <motion.div
